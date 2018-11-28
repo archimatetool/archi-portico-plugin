@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JUnit Tests for Portico Plug-in
+Bundle-SymbolicName: com.archimatetool.portico.tests
+Bundle-Version: 1.0.0
+Fragment-Host: com.archimatetool.portico
+Bundle-Vendor: Phillip Beauvoir & Jean-Baptiste Sarrodie
+Require-Bundle: org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Eclipse-BundleShape: dir
+Automatic-Module-Name: com.archimatetool.portico.tests

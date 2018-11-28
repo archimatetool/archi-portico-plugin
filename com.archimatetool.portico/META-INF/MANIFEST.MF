@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Archi
+Bundle-SymbolicName: com.archimatetool.portico;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-Vendor: Archi
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ com.archimatetool.editor
+Bundle-Activator: com.archimatetool.portico.PorticoPlugin
+Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: com.archimatetool.portico
+Bundle-ClassPath: .
