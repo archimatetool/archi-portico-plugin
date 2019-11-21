@@ -15,9 +15,13 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.osgi.util.NLS;
 
 import com.archimatetool.editor.model.IArchiveManager;
 import com.archimatetool.editor.model.IEditorModelManager;
+import com.archimatetool.editor.model.compatibility.CompatibilityHandlerException;
+import com.archimatetool.editor.model.compatibility.IncompatibleModelException;
+import com.archimatetool.editor.model.compatibility.ModelCompatibility;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateFactory;
 import com.archimatetool.model.IArchimateModel;
@@ -57,8 +61,10 @@ public class ModelImporter {
         // Don't update model tree on each event
         IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_START, false, true);
         
+        // Root model
         if(replaceWithSource) {
-            targetModel.setName(importedModel.getName());
+            // TODO: Should we set model name etc?
+            //targetModel.setName(importedModel.getName());
             targetModel.setPurpose(importedModel.getPurpose());
             updateProperties(importedModel, targetModel);
             updateFeatures(importedModel, targetModel);
@@ -112,7 +118,29 @@ public class ModelImporter {
                                                        IArchiveManager.FACTORY.createArchiveModelURI(file) :
                                                        URI.createFileURI(file.getAbsolutePath()));
 
-        resource.load(null);
+        ModelCompatibility modelCompatibility = new ModelCompatibility(resource);
+
+        try {
+            resource.load(null);
+        }
+        catch(IOException ex) {
+            // Error occured loading model. Was it a disaster?
+            try {
+                modelCompatibility.checkErrors();
+            }
+            // Incompatible
+            catch(IncompatibleModelException ex1) {
+                throw new IOException(NLS.bind(Messages.ModelImporter_0, file)
+                        + "\n" + ex1.getMessage()); //$NON-NLS-1$
+            }
+        }
+        
+        // And then fix any backward compatibility issues
+        try {
+            modelCompatibility.fixCompatibility();
+        }
+        catch(CompatibilityHandlerException ex) {
+        }
         
         IArchimateModel model = (IArchimateModel)resource.getContents().get(0);
         
