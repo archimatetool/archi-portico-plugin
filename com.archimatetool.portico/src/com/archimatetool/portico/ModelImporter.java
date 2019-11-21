@@ -7,7 +7,9 @@ package com.archimatetool.portico;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -15,6 +17,9 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import com.archimatetool.editor.model.IArchiveManager;
+import com.archimatetool.editor.model.IEditorModelManager;
+import com.archimatetool.model.IArchimateConcept;
+import com.archimatetool.model.IArchimateFactory;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IFeature;
 import com.archimatetool.model.IFeatures;
@@ -22,25 +27,35 @@ import com.archimatetool.model.IFolder;
 import com.archimatetool.model.IIdentifier;
 import com.archimatetool.model.IProperties;
 import com.archimatetool.model.IProperty;
-import com.archimatetool.model.util.ArchimateModelUtils;
 import com.archimatetool.model.util.ArchimateResourceFactory;
 
 
 /**
- * Archi Model Importer
+ * Model Importer
  * 
  * @author Phillip Beauvoir
  */
-public class ArchiModelImporter {
+public class ModelImporter {
     
     private boolean replaceWithSource;
     
-    public ArchiModelImporter(boolean replaceWithSource) {
+    private IArchimateModel importedModel;
+    private IArchimateModel targetModel;
+    
+    private Map<String, IIdentifier> objectIDCache;
+    
+    public ModelImporter(boolean replaceWithSource) {
         this.replaceWithSource = replaceWithSource;
     }
 
-    public void doImport(IArchimateModel targetModel, File importedFile) throws IOException, PorticoException {
-        IArchimateModel importedModel = loadModel(importedFile);
+    public void doImport(File importedFile, IArchimateModel targetModel) throws IOException, PorticoException {
+        importedModel = loadModel(importedFile);
+        this.targetModel = targetModel;
+        
+        objectIDCache = createObjectIDCache();
+        
+        // Don't update model tree on each event
+        IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_START, false, true);
         
         if(replaceWithSource) {
             targetModel.setName(importedModel.getName());
@@ -49,15 +64,40 @@ public class ArchiModelImporter {
             updateFeatures(importedModel, targetModel);
         }
         
-        FolderImporter folderImporter = new FolderImporter(replaceWithSource);
-
+        // Folders
+        FolderImporter folderImporter = new FolderImporter(this);
         for(Iterator<EObject> iter = importedModel.eAllContents(); iter.hasNext();) {
             EObject eObject = iter.next();
-            
             if(eObject instanceof IFolder) {
-                folderImporter.importFolder(targetModel, (IFolder)eObject);
+                folderImporter.importFolder((IFolder)eObject);
             }
         }
+        
+        // Concepts
+        ConceptImporter conceptImporter = new ConceptImporter(this);
+        for(Iterator<EObject> iter = importedModel.eAllContents(); iter.hasNext();) {
+            EObject eObject = iter.next();
+            if(eObject instanceof IArchimateConcept) {
+                conceptImporter.importConcept((IArchimateConcept)eObject);
+            }
+        }
+        
+        // Now we can update model tree
+        IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_END, false, true);
+
+        objectIDCache.clear();
+    }
+    
+    boolean doReplaceWithSource() {
+        return replaceWithSource;
+    }
+    
+    IArchimateModel getImportedModel() {
+        return importedModel;
+    }
+
+    IArchimateModel getTargetModel() {
+        return targetModel;
     }
     
     /**
@@ -92,11 +132,22 @@ public class ArchiModelImporter {
     // ===================================================================================
     
     /**
-     * Find an object in the model based on the object's identifier and class
+     * Create a new object based on class of a given object and set its ID to this one
      */
     @SuppressWarnings("unchecked")
-    static <T extends IIdentifier> T findEObject(IArchimateModel model, T eObject) throws PorticoException {
-        EObject foundObject = ArchimateModelUtils.getObjectByID(model, eObject.getId());
+    <T extends IIdentifier> T  createArchimateModelObject(T eObject) {
+        IIdentifier newObject = (IIdentifier)IArchimateFactory.eINSTANCE.create(eObject.eClass());
+        newObject.setId(eObject.getId());
+        objectIDCache.put(newObject.getId(), newObject);
+        return (T)newObject;
+    }
+    
+    /**
+     * Find an object in the target model based on the eObject's identifier and class
+     */
+    @SuppressWarnings("unchecked")
+    <T extends IIdentifier> T findEObjectInTargetModel(T eObject) throws PorticoException {
+        EObject foundObject = objectIDCache.get(eObject.getId());
         
         // Not found
         if(foundObject == null) {
@@ -113,17 +164,30 @@ public class ArchiModelImporter {
         }
     }
     
-    static void updateProperties(IProperties imported, IProperties target) {
+    void updateProperties(IProperties imported, IProperties target) {
         target.getProperties().clear();
         for(IProperty importedProperty : imported.getProperties()) {
             target.getProperties().add(EcoreUtil.copy(importedProperty));
         }
     }
     
-    static void updateFeatures(IFeatures imported, IFeatures target) {
+    void updateFeatures(IFeatures imported, IFeatures target) {
         target.getFeatures().clear();
         for(IFeature importedFeature : imported.getFeatures()) {
             target.getFeatures().add(EcoreUtil.copy(importedFeature));
         }
+    }
+    
+    private Map<String, IIdentifier> createObjectIDCache() {
+        HashMap<String, IIdentifier> map = new HashMap<String, IIdentifier>();
+        
+        for(Iterator<EObject> iter = targetModel.eAllContents(); iter.hasNext();) {
+            EObject eObject = iter.next();
+            if(eObject instanceof IIdentifier) {
+                map.put(((IIdentifier)eObject).getId(), (IIdentifier)eObject);
+            }
+        }
+        
+        return map;
     }
 }

@@ -34,15 +34,15 @@ public class PorticoImportProvider implements ISelectedModelImporter {
     }
 
     @Override
-    public void doImport(IArchimateModel model) throws IOException {
-        File modelFile = askOpenFile();
-        if(modelFile == null) {
+    public void doImport(IArchimateModel targetModel) throws IOException {
+        File importedFile = askOpenFile();
+        if(importedFile == null) {
             return;
         }
 
         try {
-            ArchiModelImporter importer = new ArchiModelImporter(replaceWithSource);
-            importer.doImport(model, modelFile);
+            ModelImporter importer = new ModelImporter(replaceWithSource);
+            importer.doImport(importedFile, targetModel);
         }
         catch(PorticoException ex) {
             throw new IOException(ex);
