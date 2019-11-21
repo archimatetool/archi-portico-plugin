@@ -24,6 +24,12 @@ import com.archimatetool.model.IArchimateModel;
  */
 public class PorticoImportProvider implements ISelectedModelImporter {
 
+    /**
+     * If true target data is discarded and source data is used
+     * TODO: This will be in the importer wizard
+     */
+    private boolean replaceWithSource = true;
+
     public PorticoImportProvider() {
     }
 
@@ -34,8 +40,13 @@ public class PorticoImportProvider implements ISelectedModelImporter {
             return;
         }
 
-        ArchiModelImporter importer = new ArchiModelImporter(model);
-        importer.doImport(modelFile);
+        try {
+            ArchiModelImporter importer = new ArchiModelImporter(replaceWithSource);
+            importer.doImport(model, modelFile);
+        }
+        catch(PorticoException ex) {
+            throw new IOException(ex);
+        }
     }
 
     private File askOpenFile() {

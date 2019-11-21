@@ -10,14 +10,18 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import com.archimatetool.editor.model.IArchiveManager;
 import com.archimatetool.model.IArchimateModel;
+import com.archimatetool.model.IFeature;
+import com.archimatetool.model.IFeatures;
 import com.archimatetool.model.IFolder;
+import com.archimatetool.model.IIdentifier;
+import com.archimatetool.model.IProperties;
+import com.archimatetool.model.IProperty;
 import com.archimatetool.model.util.ArchimateModelUtils;
 import com.archimatetool.model.util.ArchimateResourceFactory;
 
@@ -29,37 +33,37 @@ import com.archimatetool.model.util.ArchimateResourceFactory;
  */
 public class ArchiModelImporter {
     
-    private IArchimateModel fSourceModel;
-    private IArchimateModel fTargetModel;
-    private IArchimateModel fTargetCopyModel;
-
-    public ArchiModelImporter(IArchimateModel targetModel) {
-        fTargetModel = targetModel;
+    private boolean replaceWithSource;
+    
+    public ArchiModelImporter(boolean replaceWithSource) {
+        this.replaceWithSource = replaceWithSource;
     }
 
-    public void doImport(File file) throws IOException {
-        fSourceModel = loadModel(file);
-
-        fTargetCopyModel = EcoreUtil.copy(fTargetModel);
+    public void doImport(IArchimateModel targetModel, File importedFile) throws IOException, PorticoException {
+        IArchimateModel importedModel = loadModel(importedFile);
         
-        for(Iterator<EObject> iter = fSourceModel.eAllContents(); iter.hasNext();) {
+        if(replaceWithSource) {
+            targetModel.setName(importedModel.getName());
+            targetModel.setPurpose(importedModel.getPurpose());
+            updateProperties(importedModel, targetModel);
+            updateFeatures(importedModel, targetModel);
+        }
+        
+        FolderImporter folderImporter = new FolderImporter(replaceWithSource);
+
+        for(Iterator<EObject> iter = importedModel.eAllContents(); iter.hasNext();) {
             EObject eObject = iter.next();
             
             if(eObject instanceof IFolder) {
-                handleImportFolder((IFolder)eObject);
+                folderImporter.importFolder(targetModel, (IFolder)eObject);
             }
         }
-        
-    }
-    
-    void handleImportFolder(IFolder folder) {
-        // Do we have it already?
     }
     
     /**
      * Load a model from file
      */
-    IArchimateModel loadModel(File file) throws IOException {
+    private IArchimateModel loadModel(File file) throws IOException {
         // Ascertain if this is an archive file
         boolean useArchiveFormat = IArchiveManager.FACTORY.isArchiveFile(file);
         
@@ -83,22 +87,43 @@ public class ArchiModelImporter {
         return model;
     }
 
-    EObject findEObject(IArchimateModel model, EClass eClass, String id) throws PorticoException {
-        EObject eObject = ArchimateModelUtils.getObjectByID(model, id);
-        
-        // Found an element with this id
-        if(eObject != null) {
-            // And the class matches
-            if(eObject.eClass() == eClass) {
-                return eObject;
-            }
-            // Not the right class, so that's an error we should report
-            else {
-                throw new PorticoException("Found EObject with same id but different class: " + id);
-            }
-        }
+    // ===================================================================================
+    // Utility methods
+    // ===================================================================================
+    
+    /**
+     * Find an object in the model based on the object's identifier and class
+     */
+    @SuppressWarnings("unchecked")
+    static <T extends IIdentifier> T findEObject(IArchimateModel model, T eObject) throws PorticoException {
+        EObject foundObject = ArchimateModelUtils.getObjectByID(model, eObject.getId());
         
         // Not found
-        return null;
+        if(foundObject == null) {
+            return null;
+        }
+        
+        // Found an element with this id and the class is the same
+        if(foundObject.eClass() == eObject.eClass()) {
+            return (T)foundObject;
+        }
+        // Not the right class, so that's an error we should report
+        else {
+            throw new PorticoException("Found object with same id but different class: " + eObject.getId()); //$NON-NLS-1$
+        }
+    }
+    
+    static void updateProperties(IProperties imported, IProperties target) {
+        target.getProperties().clear();
+        for(IProperty importedProperty : imported.getProperties()) {
+            target.getProperties().add(EcoreUtil.copy(importedProperty));
+        }
+    }
+    
+    static void updateFeatures(IFeatures imported, IFeatures target) {
+        target.getFeatures().clear();
+        for(IFeature importedFeature : imported.getFeatures()) {
+            target.getFeatures().add(EcoreUtil.copy(importedFeature));
+        }
     }
 }
