@@ -24,8 +24,6 @@ public class FolderImporter {
     }
 
     void importFolder(IFolder importedFolder) throws PorticoException {
-        boolean newFolderCreated = false;
-
         // Do we have this folder given its ID?
         IFolder targetFolder = importer.findEObjectInTargetModel(importedFolder);
         
@@ -36,16 +34,11 @@ public class FolderImporter {
             
             // No, so create a new folder
             if(targetFolder == null) {
-                targetFolder = importer.createArchimateModelObject(importedFolder);
-                newFolderCreated = true;
+                targetFolder = importer.cloneObject(importedFolder);
             }
         }
-        
-        if(importer.doReplaceWithSource() || newFolderCreated) {
-            targetFolder.setName(importedFolder.getName());
-            targetFolder.setDocumentation(importedFolder.getDocumentation());
-            importer.updateProperties(importedFolder, targetFolder);
-            importer.updateFeatures(importedFolder, targetFolder);
+        else if(importer.doReplaceWithSource()) {
+            importer.updateObject(importedFolder, targetFolder);
         }
 
         // Determine the parent folder...

@@ -25,10 +25,12 @@ import com.archimatetool.editor.model.compatibility.ModelCompatibility;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateFactory;
 import com.archimatetool.model.IArchimateModel;
+import com.archimatetool.model.IDocumentable;
 import com.archimatetool.model.IFeature;
 import com.archimatetool.model.IFeatures;
 import com.archimatetool.model.IFolder;
 import com.archimatetool.model.IIdentifier;
+import com.archimatetool.model.INameable;
 import com.archimatetool.model.IProperties;
 import com.archimatetool.model.IProperty;
 import com.archimatetool.model.util.ArchimateResourceFactory;
@@ -160,17 +162,6 @@ public class ModelImporter {
     // ===================================================================================
     
     /**
-     * Create a new object based on class of a given object and set its ID to this one
-     */
-    @SuppressWarnings("unchecked")
-    <T extends IIdentifier> T  createArchimateModelObject(T eObject) {
-        IIdentifier newObject = (IIdentifier)IArchimateFactory.eINSTANCE.create(eObject.eClass());
-        newObject.setId(eObject.getId());
-        objectIDCache.put(newObject.getId(), newObject);
-        return (T)newObject;
-    }
-    
-    /**
      * Find an object in the target model based on the eObject's identifier and class
      */
     @SuppressWarnings("unchecked")
@@ -189,6 +180,46 @@ public class ModelImporter {
         // Not the right class, so that's an error we should report
         else {
             throw new PorticoException("Found object with same id but different class: " + eObject.getId()); //$NON-NLS-1$
+        }
+    }
+    
+    /**
+     * Create a new object based on class of a given object and set its data to this one
+     */
+    @SuppressWarnings("unchecked")
+    <T extends IIdentifier> T cloneObject(T eObject) {
+        IIdentifier newObject = (IIdentifier)IArchimateFactory.eINSTANCE.create(eObject.eClass());
+        newObject.setId(eObject.getId());
+        
+        updateObject(eObject, newObject);
+        
+        objectIDCache.put(newObject.getId(), newObject);
+        
+        return (T)newObject;
+    }
+    
+    /**
+     * Update target object with data from source object
+     */
+    void updateObject(EObject source, EObject target) {
+        // Name
+        if(source instanceof INameable && target instanceof INameable) {
+            ((INameable)target).setName(((INameable)source).getName());
+        }
+        
+        // Documentation
+        if(source instanceof IDocumentable && target instanceof IDocumentable) {
+            ((IDocumentable)target).setDocumentation(((IDocumentable)source).getDocumentation());
+        }
+        
+        // Properties
+        if(source instanceof IProperties  && target instanceof IProperties) {
+            updateProperties((IProperties)source, (IProperties)target);
+        }
+
+        // Features
+        if(source instanceof IFeatures && target instanceof IFeatures) {
+            updateFeatures((IFeatures)source, (IFeatures)target);
         }
     }
     

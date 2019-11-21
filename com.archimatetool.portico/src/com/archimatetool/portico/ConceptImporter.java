@@ -25,15 +25,12 @@ public class ConceptImporter {
     }
 
     IArchimateConcept importConcept(IArchimateConcept importedConcept) throws PorticoException {
-        boolean newConceptCreated = false;
-
         // Do we have this concept given its ID?
         IArchimateConcept targetConcept = importer.findEObjectInTargetModel(importedConcept);
         
         // We don't have it, so create a new concept
         if(targetConcept == null) {
-            targetConcept = importer.createArchimateModelObject(importedConcept);
-            newConceptCreated = true;
+            targetConcept = importer.cloneObject(importedConcept);
             
             // Relationship
             if(importedConcept instanceof IArchimateRelationship) {
@@ -47,12 +44,10 @@ public class ConceptImporter {
                 targetRelationship.setTarget(target);
             }
         }
-        
-        if(importer.doReplaceWithSource() || newConceptCreated) {
-            targetConcept.setName(importedConcept.getName());
-            targetConcept.setDocumentation(importedConcept.getDocumentation());
-            importer.updateProperties(importedConcept, targetConcept);
-            importer.updateFeatures(importedConcept, targetConcept);
+        else if(importer.doReplaceWithSource()) {
+            // TODO: If it's a Relationship check source and target for changes
+            
+            importer.updateObject(importedConcept, targetConcept);
         }
 
         // Imported concept's parent folder
