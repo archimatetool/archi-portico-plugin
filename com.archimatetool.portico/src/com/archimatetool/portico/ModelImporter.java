@@ -15,6 +15,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.osgi.util.NLS;
 
 import com.archimatetool.editor.model.IArchiveManager;
@@ -93,6 +94,13 @@ public class ModelImporter {
         // Now we can update model tree
         IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_END, false, true);
 
+        // Flush the Command Stack
+        // TODO: Remove this when we have either implemented Undo/Redo or import off-line
+        CommandStack stack = (CommandStack)targetModel.getAdapter(CommandStack.class);
+        if(stack != null) {
+            stack.flush();
+        }
+        
         objectIDCache.clear();
     }
     

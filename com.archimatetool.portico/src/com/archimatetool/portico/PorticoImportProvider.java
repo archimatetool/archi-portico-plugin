@@ -8,10 +8,12 @@ package com.archimatetool.portico;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 
+import com.archimatetool.editor.model.IEditorModelManager;
 import com.archimatetool.editor.model.ISelectedModelImporter;
 import com.archimatetool.editor.utils.PlatformUtils;
 import com.archimatetool.model.IArchimateModel;
@@ -35,6 +37,17 @@ public class PorticoImportProvider implements ISelectedModelImporter {
 
     @Override
     public void doImport(IArchimateModel targetModel) throws IOException {
+        if(IEditorModelManager.INSTANCE.isModelDirty(targetModel)) {
+            if(MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
+                    "Save",
+                    "The model needs saving before you proceed, would you like to save it now?")) {
+                IEditorModelManager.INSTANCE.saveModel(targetModel);
+            }
+            else {
+                return;
+            }
+        }
+        
         File importedFile = askOpenFile();
         if(importedFile == null) {
             return;
