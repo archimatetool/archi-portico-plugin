@@ -87,15 +87,14 @@ public class ConceptImporter {
         targetRelationship.setTarget(target);
     }
     
-    private void updateRelationshipDiagramInstances(IArchimateRelationship targetRelationship) {
+    private void updateRelationshipDiagramInstances(IArchimateRelationship relationship) {
         for(IDiagramModel dm : importer.getTargetModel().getDiagramModels()) {
             // Matching connections
-            for(IDiagramModelArchimateConnection matchingConnection : DiagramModelUtils.findDiagramModelConnectionsForRelation(dm, targetRelationship)) {
+            for(IDiagramModelArchimateConnection matchingConnection : DiagramModelUtils.findDiagramModelConnectionsForRelation(dm, relationship)) {
                 // Is source object valid?
-                IDiagramModelArchimateComponent source = (IDiagramModelArchimateComponent)matchingConnection.getSource();
-                if(source.getArchimateConcept() != targetRelationship.getSource()) {
+                if(((IDiagramModelArchimateComponent)matchingConnection.getSource()).getArchimateConcept() != relationship.getSource()) {
                     // Get the first instance of the new source in this view and connect to that
-                    List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(dm, targetRelationship.getSource());
+                    List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(dm, relationship.getSource());
                     if(!list.isEmpty()) {
                         IDiagramModelArchimateComponent matchingComponent = list.get(0);
                         matchingConnection.connect(matchingComponent, matchingConnection.getTarget());
@@ -107,10 +106,9 @@ public class ConceptImporter {
                 }
 
                 // Is target object valid?
-                IDiagramModelArchimateComponent target = (IDiagramModelArchimateComponent)matchingConnection.getTarget();
-                if(target.getArchimateConcept() != targetRelationship.getTarget()) {
+                if(((IDiagramModelArchimateComponent)matchingConnection.getTarget()).getArchimateConcept() != relationship.getTarget()) {
                     // Get the first instance of the new source in this view and connect to that
-                    List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(dm, targetRelationship.getTarget());
+                    List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(dm, relationship.getTarget());
                     if(!list.isEmpty()) {
                         IDiagramModelArchimateComponent matchingComponent = list.get(0);
                         matchingConnection.connect(matchingConnection.getSource(), matchingComponent);
