@@ -5,9 +5,16 @@
  */
 package com.archimatetool.portico;
 
+import java.util.List;
+
+import com.archimatetool.editor.diagram.commands.DiagramCommandFactory;
+import com.archimatetool.editor.model.DiagramModelUtils;
 import com.archimatetool.model.FolderType;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateRelationship;
+import com.archimatetool.model.IDiagramModel;
+import com.archimatetool.model.IDiagramModelArchimateComponent;
+import com.archimatetool.model.IDiagramModelArchimateConnection;
 import com.archimatetool.model.IFolder;
 
 
@@ -34,20 +41,17 @@ public class ConceptImporter {
             
             // Relationship
             if(importedConcept instanceof IArchimateRelationship) {
-                IArchimateRelationship importedRelationship = (IArchimateRelationship)importedConcept;
-                IArchimateRelationship targetRelationship = (IArchimateRelationship)targetConcept;
-                
-                IArchimateConcept source = importConcept(importedRelationship.getSource());
-                IArchimateConcept target = importConcept(importedRelationship.getTarget());
-                
-                targetRelationship.setSource(source);
-                targetRelationship.setTarget(target);
+                setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);
             }
         }
         else if(importer.doReplaceWithSource()) {
-            // TODO: If it's a Relationship check source and target for changes
-            
             importer.updateObject(importedConcept, targetConcept);
+
+            // Relationship
+            if(importedConcept instanceof IArchimateRelationship) {
+                setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);
+                updateRelationshipDiagramInstances((IArchimateRelationship)targetConcept);
+            }
         }
 
         // Imported concept's parent folder
@@ -73,5 +77,50 @@ public class ConceptImporter {
         }
         
         return targetConcept;
+    }
+    
+    private void setRelationshipEnds(IArchimateRelationship importedRelationship, IArchimateRelationship targetRelationship) throws PorticoException {
+        IArchimateConcept source = importConcept(importedRelationship.getSource());
+        IArchimateConcept target = importConcept(importedRelationship.getTarget());
+        
+        targetRelationship.setSource(source);
+        targetRelationship.setTarget(target);
+    }
+    
+    private void updateRelationshipDiagramInstances(IArchimateRelationship targetRelationship) {
+        for(IDiagramModel dm : importer.getTargetModel().getDiagramModels()) {
+            // Matching connections
+            for(IDiagramModelArchimateConnection matchingConnection : DiagramModelUtils.findDiagramModelConnectionsForRelation(dm, targetRelationship)) {
+                // Is source object valid?
+                IDiagramModelArchimateComponent source = (IDiagramModelArchimateComponent)matchingConnection.getSource();
+                if(source.getArchimateConcept() != targetRelationship.getSource()) {
+                    // Get the first instance of the new source in this view and connect to that
+                    List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(dm, targetRelationship.getSource());
+                    if(!list.isEmpty()) {
+                        IDiagramModelArchimateComponent matchingComponent = list.get(0);
+                        matchingConnection.connect(matchingComponent, matchingConnection.getTarget());
+                    }
+                    // Not found, so delete the matching connection
+                    else {
+                        DiagramCommandFactory.createDeleteDiagramConnectionCommand(matchingConnection).execute();
+                    }
+                }
+
+                // Is target object valid?
+                IDiagramModelArchimateComponent target = (IDiagramModelArchimateComponent)matchingConnection.getTarget();
+                if(target.getArchimateConcept() != targetRelationship.getTarget()) {
+                    // Get the first instance of the new source in this view and connect to that
+                    List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(dm, targetRelationship.getTarget());
+                    if(!list.isEmpty()) {
+                        IDiagramModelArchimateComponent matchingComponent = list.get(0);
+                        matchingConnection.connect(matchingConnection.getSource(), matchingComponent);
+                    }
+                    // Not found, so delete the matching connection
+                    else {
+                        DiagramCommandFactory.createDeleteDiagramConnectionCommand(matchingConnection).execute();
+                    }
+                }
+            }
+        }
     }
 }
