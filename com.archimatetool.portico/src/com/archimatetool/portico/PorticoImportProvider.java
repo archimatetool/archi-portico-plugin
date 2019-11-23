@@ -36,12 +36,15 @@ public class PorticoImportProvider implements ISelectedModelImporter {
     @Override
     public void doImport(IArchimateModel targetModel) throws IOException {
         if(IEditorModelManager.INSTANCE.isModelDirty(targetModel)) {
-            if(MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
+            boolean doSave = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
                     Messages.PorticoImportProvider_0,
-                    Messages.PorticoImportProvider_1)) {
-                IEditorModelManager.INSTANCE.saveModel(targetModel);
+                    Messages.PorticoImportProvider_1);
+                    
+            if(doSave) {
+                doSave = IEditorModelManager.INSTANCE.saveModel(targetModel);
             }
-            else {
+            
+            if(!doSave) {
                 return;
             }
         }
