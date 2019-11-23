@@ -8,14 +8,18 @@ package com.archimatetool.portico;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.SWT;
+import org.eclipse.jface.window.Window;
+import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 
 import com.archimatetool.editor.model.IEditorModelManager;
 import com.archimatetool.editor.model.ISelectedModelImporter;
-import com.archimatetool.editor.utils.PlatformUtils;
+import com.archimatetool.editor.ui.components.ExtendedWizardDialog;
 import com.archimatetool.model.IArchimateModel;
 
 
@@ -26,12 +30,6 @@ import com.archimatetool.model.IArchimateModel;
  */
 public class PorticoImportProvider implements ISelectedModelImporter {
 
-    /**
-     * If true target data is discarded and source data is used
-     * TODO: This will be in the importer wizard
-     */
-    private boolean replaceWithSource = true;
-
     public PorticoImportProvider() {
     }
 
@@ -39,8 +37,8 @@ public class PorticoImportProvider implements ISelectedModelImporter {
     public void doImport(IArchimateModel targetModel) throws IOException {
         if(IEditorModelManager.INSTANCE.isModelDirty(targetModel)) {
             if(MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
-                    "Save",
-                    "The model needs saving before you proceed, would you like to save it now?")) {
+                    Messages.PorticoImportProvider_0,
+                    Messages.PorticoImportProvider_1)) {
                 IEditorModelManager.INSTANCE.saveModel(targetModel);
             }
             else {
@@ -48,32 +46,43 @@ public class PorticoImportProvider implements ISelectedModelImporter {
             }
         }
         
-        File importedFile = askOpenFile();
-        if(importedFile == null) {
-            return;
-        }
+        ImportModelWizard wizard = new ImportModelWizard();
+        
+        WizardDialog dialog = new ExtendedWizardDialog(Display.getCurrent().getActiveShell(),
+                wizard,
+                "ImportModelWizard") { //$NON-NLS-1$
 
-        try {
+            @Override
+            protected void createButtonsForButtonBar(Composite parent) {
+                super.createButtonsForButtonBar(parent); // Change "Finish" to "Save"
+                Button b = getButton(IDialogConstants.FINISH_ID);
+                b.setText(Messages.PorticoImportProvider_2);
+            }
+        };
+        
+        if(dialog.open() == Window.OK) {
+            boolean replaceWithSource = wizard.doReplaceWithSource();
+            
+            File importedFile = wizard.getFile();
+            if(importedFile == null) {
+                return;
+            }
+            
             ModelImporter importer = new ModelImporter(replaceWithSource);
-            importer.doImport(importedFile, targetModel);
-        }
-        catch(PorticoException ex) {
-            throw new IOException(ex);
+            Exception[] ex = new Exception[1];
+
+            BusyIndicator.showWhile(Display.getCurrent(), () -> {
+                try {
+                    importer.doImport(importedFile, targetModel);
+                }
+                catch(Exception ex1) {
+                    ex[0] = ex1;
+                }
+            });
+            
+            if(ex[0] != null) {
+                throw new IOException(ex[0]);
+            }
         }
     }
-
-    private File askOpenFile() {
-        FileDialog dialog = new FileDialog(Display.getCurrent().getActiveShell(), SWT.OPEN);
-        dialog.setFilterExtensions(new String[] { "*.archimate", "*.*" } ); //$NON-NLS-1$ //$NON-NLS-2$
-        String path = dialog.open();
-        
-        // TODO: Bug on Mac 10.12 and newer - Open dialog does not close straight away
-        // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=527306
-        if(path != null && PlatformUtils.isMac()) {
-            while(Display.getCurrent().readAndDispatch());
-        }
-        
-        return path != null ? new File(path) : null;
-    }
-
 }

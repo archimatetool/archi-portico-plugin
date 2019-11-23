@@ -9,4 +9,10 @@
             label="Another Model Into Selected Model...">
       </importHandler2>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.archimatetool.portico.PreferenceInitializer">
+      </initializer>
+   </extension>
 </plugin>
