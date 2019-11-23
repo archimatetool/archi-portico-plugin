@@ -26,6 +26,7 @@ import com.archimatetool.editor.model.compatibility.ModelCompatibility;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateFactory;
 import com.archimatetool.model.IArchimateModel;
+import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDocumentable;
 import com.archimatetool.model.IFeature;
 import com.archimatetool.model.IFeatures;
@@ -61,10 +62,10 @@ public class ModelImporter {
         
         objectIDCache = createObjectIDCache();
         
-        // Don't update model tree on each event
+        // Don't update UI on each event
         IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_START, false, true);
         
-        // Root model
+        // Upate root model information
         if(replaceWithSource) {
             // TODO: Should we set model name etc?
             //targetModel.setName(importedModel.getName());
@@ -73,25 +74,32 @@ public class ModelImporter {
             updateFeatures(importedModel, targetModel);
         }
         
-        // Folders
         FolderImporter folderImporter = new FolderImporter(this);
+        ConceptImporter conceptImporter = new ConceptImporter(this);
+        ViewImporter viewImporter = new ViewImporter(this);
+        
+        // Iterate through all model contents
         for(Iterator<EObject> iter = importedModel.eAllContents(); iter.hasNext();) {
             EObject eObject = iter.next();
+            
+            // Update folders
             if(eObject instanceof IFolder) {
                 folderImporter.importFolder((IFolder)eObject);
             }
-        }
-        
-        // Concepts
-        ConceptImporter conceptImporter = new ConceptImporter(this);
-        for(Iterator<EObject> iter = importedModel.eAllContents(); iter.hasNext();) {
-            EObject eObject = iter.next();
-            if(eObject instanceof IArchimateConcept) {
+            // Update concepts
+            else if(eObject instanceof IArchimateConcept) {
                 conceptImporter.importConcept((IArchimateConcept)eObject);
+            }
+            // Update views
+            else if(eObject instanceof IDiagramModel) {
+                viewImporter.importView((IDiagramModel)eObject);
             }
         }
         
-        // Now we can update model tree
+        // Post processing
+        viewImporter.postProcess();
+        
+        // Now we can update the UI
         IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_END, false, true);
 
         // Flush the Command Stack
@@ -166,7 +174,7 @@ public class ModelImporter {
     }
 
     // ===================================================================================
-    // Utility methods
+    // Shared methods
     // ===================================================================================
     
     /**
