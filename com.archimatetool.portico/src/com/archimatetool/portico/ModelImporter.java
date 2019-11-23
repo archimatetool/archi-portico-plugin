@@ -8,7 +8,6 @@ package com.archimatetool.portico;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -54,9 +53,6 @@ public class ModelImporter {
     // Keep a cache of objects in the target model for speed
     private Map<String, IIdentifier> objectCache;
     
-    // Keep a record of objects that have already been updated
-    private HashSet<EObject> updatedObjects;
-    
     public ModelImporter(boolean replaceWithSource) {
         this.replaceWithSource = replaceWithSource;
     }
@@ -66,7 +62,6 @@ public class ModelImporter {
         this.targetModel = targetModel;
         
         objectCache = createObjectIDCache();
-        updatedObjects = new HashSet<EObject>();
         
         // Don't update UI on each event
         IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_START, false, true);
@@ -116,7 +111,6 @@ public class ModelImporter {
         }
         
         objectCache.clear();
-        updatedObjects.clear();
     }
     
     boolean doReplaceWithSource() {
@@ -188,7 +182,7 @@ public class ModelImporter {
      * Find an object in the target model based on the eObject's identifier and class
      */
     @SuppressWarnings("unchecked")
-    <T extends IIdentifier> T findEObjectInTargetModel(T eObject) throws PorticoException {
+    <T extends IIdentifier> T findObjectInTargetModel(T eObject) throws PorticoException {
         EObject foundObject = objectCache.get(eObject.getId());
         
         // Not found
@@ -225,10 +219,6 @@ public class ModelImporter {
      * Update target object with data from source object
      */
     void updateObject(EObject source, EObject target) {
-        if(updatedObjects.contains(target)) { // Already been updated
-            return;
-        }
-        
         // Name
         if(source instanceof INameable && target instanceof INameable) {
             ((INameable)target).setName(((INameable)source).getName());
@@ -248,8 +238,6 @@ public class ModelImporter {
         if(source instanceof IFeatures && target instanceof IFeatures) {
             updateFeatures((IFeatures)source, (IFeatures)target);
         }
-        
-        updatedObjects.add(target);
     }
     
     private void updateProperties(IProperties imported, IProperties target) {

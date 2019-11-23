@@ -25,7 +25,7 @@ public class FolderImporter {
 
     void importFolder(IFolder importedFolder) throws PorticoException {
         // Do we have this folder given its ID?
-        IFolder targetFolder = importer.findEObjectInTargetModel(importedFolder);
+        IFolder targetFolder = importer.findObjectInTargetModel(importedFolder);
         
         // We don't have it
         if(targetFolder == null) {
@@ -49,7 +49,7 @@ public class FolderImporter {
             // Imported folder's parent folder is a User folder
             if(importedParentFolder.getType() == FolderType.USER) {
                 // Do we have this matching parent folder?
-                IFolder targetParentFolder = importer.findEObjectInTargetModel(importedParentFolder);
+                IFolder targetParentFolder = importer.findObjectInTargetModel(importedParentFolder);
                 // Yes, add it
                 if(targetParentFolder != null) {
                     targetParentFolder.getFolders().add(targetFolder);

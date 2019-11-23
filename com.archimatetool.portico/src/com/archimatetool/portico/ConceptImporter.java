@@ -26,7 +26,7 @@ public class ConceptImporter {
 
     IArchimateConcept importConcept(IArchimateConcept importedConcept) throws PorticoException {
         // Do we have this concept given its ID?
-        IArchimateConcept targetConcept = importer.findEObjectInTargetModel(importedConcept);
+        IArchimateConcept targetConcept = importer.findObjectInTargetModel(importedConcept);
         
         // We don't have it, so create a new concept
         if(targetConcept == null) {
@@ -52,7 +52,7 @@ public class ConceptImporter {
         // Imported folder's parent folder is a User folder
         if(importedParentFolder.getType() == FolderType.USER) {
             // Do we have this matching parent folder?
-            IFolder targetParentFolder = importer.findEObjectInTargetModel(importedParentFolder);
+            IFolder targetParentFolder = importer.findObjectInTargetModel(importedParentFolder);
             // Yes, add the concept to it
             if(targetParentFolder != null) {
                 targetParentFolder.getElements().add(targetConcept);
@@ -72,10 +72,16 @@ public class ConceptImporter {
     }
     
     private void setRelationshipEnds(IArchimateRelationship importedRelationship, IArchimateRelationship targetRelationship) throws PorticoException {
-        IArchimateConcept source = importConcept(importedRelationship.getSource());
-        IArchimateConcept target = importConcept(importedRelationship.getTarget());
-        
+        IArchimateConcept source = importer.findObjectInTargetModel(importedRelationship.getSource());
+        if(source == null) {
+            source = importConcept(importedRelationship.getSource());
+        }
         targetRelationship.setSource(source);
+        
+        IArchimateConcept target = importer.findObjectInTargetModel(importedRelationship.getTarget());
+        if(target == null) {
+            source = importConcept(importedRelationship.getTarget());
+        }
         targetRelationship.setTarget(target);
     }
 }

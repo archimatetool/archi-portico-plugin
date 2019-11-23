@@ -6,7 +6,7 @@
       <importHandler2
             class="com.archimatetool.portico.PorticoImportProvider"
             id="com.archimatetool.portico.importHandler"
-            label="Model into Current Model...">
+            label="Another Model Into Selected Model...">
       </importHandler2>
    </extension>
 </plugin>
