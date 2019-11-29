@@ -12,27 +12,35 @@ import org.eclipse.emf.ecore.EObject;
 
 import com.archimatetool.editor.diagram.commands.DiagramCommandFactory;
 import com.archimatetool.editor.model.DiagramModelUtils;
+import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateRelationship;
 import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateComponent;
 import com.archimatetool.model.IDiagramModelArchimateConnection;
 
 /**
- * Archi View Importer
+ * ArchiMate View Importer
  * 
  * @author Phillip Beauvoir
  */
-public class ViewImporter {
+class ArchimateViewImporter extends AbstractViewImporter {
     
-    private ModelImporter importer;
-    
-    ViewImporter(ModelImporter importer) {
-        this.importer = importer;
+    ArchimateViewImporter(ModelImporter importer) {
+        super(importer);
     }
 
-    void importView(IDiagramModel dm) {
-        // TODO: Import and update View
+    @Override
+    IDiagramModel importView(IDiagramModel importedView) throws PorticoException {
+        IArchimateDiagramModel targetView = (IArchimateDiagramModel)super.importView(importedView);
         
+        targetView.setViewpoint(((IArchimateDiagramModel)importedView).getViewpoint());
+        
+        return targetView;
+    }
+    
+    @Override
+    protected void updateChildObjects(IDiagramModel importedView, IDiagramModel targetView) {
+        super.updateChildObjects(importedView, targetView);
     }
 
     /**

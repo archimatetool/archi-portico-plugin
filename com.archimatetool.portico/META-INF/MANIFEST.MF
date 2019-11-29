@@ -8,7 +8,9 @@ Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
- com.archimatetool.editor
+ com.archimatetool.editor,
+ com.archimatetool.canvas,
+ com.archimatetool.help
 Bundle-Activator: com.archimatetool.portico.PorticoPlugin
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: com.archimatetool.portico

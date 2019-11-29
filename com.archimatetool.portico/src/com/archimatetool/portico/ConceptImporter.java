@@ -5,10 +5,8 @@
  */
 package com.archimatetool.portico;
 
-import com.archimatetool.model.FolderType;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateRelationship;
-import com.archimatetool.model.IFolder;
 
 
 /**
@@ -16,14 +14,12 @@ import com.archimatetool.model.IFolder;
  * 
  * @author Phillip Beauvoir
  */
-public class ConceptImporter {
-    
-    private ModelImporter importer;
+class ConceptImporter extends AbstractImporter {
     
     ConceptImporter(ModelImporter importer) {
-        this.importer = importer;
+        super(importer);
     }
-
+    
     IArchimateConcept importConcept(IArchimateConcept importedConcept) throws PorticoException {
         // Do we have this concept given its ID?
         IArchimateConcept targetConcept = importer.findObjectInTargetModel(importedConcept);
@@ -45,28 +41,9 @@ public class ConceptImporter {
                 setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);
             }
         }
-
-        // Imported concept's parent folder
-        IFolder importedParentFolder = (IFolder)importedConcept.eContainer();
-
-        // Imported folder's parent folder is a User folder
-        if(importedParentFolder.getType() == FolderType.USER) {
-            // Do we have this matching parent folder?
-            IFolder targetParentFolder = importer.findObjectInTargetModel(importedParentFolder);
-            // Yes, add the concept to it
-            if(targetParentFolder != null) {
-                targetParentFolder.getElements().add(targetConcept);
-            }
-            // No
-            else {
-                throw new PorticoException("Target parent folder was null"); //$NON-NLS-1$
-            }
-        }
-        // Parent is a top level folder
-        else {
-            IFolder f = importer.getTargetModel().getDefaultFolderForObject(targetConcept);
-            f.getElements().add(targetConcept);
-        }
+        
+        // Add to parent folder
+        addToParentFolder(importedConcept, targetConcept);
         
         return targetConcept;
     }

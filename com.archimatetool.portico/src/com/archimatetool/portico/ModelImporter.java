@@ -18,15 +18,15 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.osgi.util.NLS;
 
+import com.archimatetool.canvas.model.ICanvasModel;
 import com.archimatetool.editor.model.IArchiveManager;
 import com.archimatetool.editor.model.IEditorModelManager;
 import com.archimatetool.editor.model.compatibility.CompatibilityHandlerException;
 import com.archimatetool.editor.model.compatibility.IncompatibleModelException;
 import com.archimatetool.editor.model.compatibility.ModelCompatibility;
 import com.archimatetool.model.IArchimateConcept;
-import com.archimatetool.model.IArchimateFactory;
+import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateModel;
-import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDocumentable;
 import com.archimatetool.model.IFeature;
 import com.archimatetool.model.IFeatures;
@@ -35,6 +35,7 @@ import com.archimatetool.model.IIdentifier;
 import com.archimatetool.model.INameable;
 import com.archimatetool.model.IProperties;
 import com.archimatetool.model.IProperty;
+import com.archimatetool.model.ISketchModel;
 import com.archimatetool.model.util.ArchimateResourceFactory;
 
 
@@ -77,7 +78,9 @@ public class ModelImporter {
         
         FolderImporter folderImporter = new FolderImporter(this);
         ConceptImporter conceptImporter = new ConceptImporter(this);
-        ViewImporter viewImporter = new ViewImporter(this);
+        ArchimateViewImporter archimateViewImporter = new ArchimateViewImporter(this);
+        SketchViewImporter sketchViewImporter = new SketchViewImporter(this);
+        CanvasViewImporter canvasViewImporter = new CanvasViewImporter(this);
         
         // Iterate through all model contents
         for(Iterator<EObject> iter = importedModel.eAllContents(); iter.hasNext();) {
@@ -92,13 +95,19 @@ public class ModelImporter {
                 conceptImporter.importConcept((IArchimateConcept)eObject);
             }
             // Update views
-            else if(eObject instanceof IDiagramModel) {
-                viewImporter.importView((IDiagramModel)eObject);
+            else if(eObject instanceof IArchimateDiagramModel) {
+                archimateViewImporter.importView((IArchimateDiagramModel)eObject);
+            }
+            else if(eObject instanceof ISketchModel) {
+                sketchViewImporter.importView((ISketchModel)eObject);
+            }
+            else if(eObject instanceof ICanvasModel) {
+                canvasViewImporter.importView((ICanvasModel)eObject);
             }
         }
         
         // Post processing
-        viewImporter.postProcess();
+        archimateViewImporter.postProcess();
         
         // Now we can update the UI
         IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_END, false, true);
@@ -205,7 +214,9 @@ public class ModelImporter {
      */
     @SuppressWarnings("unchecked")
     <T extends IIdentifier> T cloneObject(T eObject) {
-        IIdentifier newObject = (IIdentifier)IArchimateFactory.eINSTANCE.create(eObject.eClass());
+        // Get the object's package and factory in case this is a Canvas which has its own factory
+        IIdentifier newObject = (IIdentifier)EcoreUtil.create(eObject.eClass());
+        
         newObject.setId(eObject.getId());
         
         updateObject(eObject, newObject);
