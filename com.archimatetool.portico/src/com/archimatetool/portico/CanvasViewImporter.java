@@ -5,8 +5,7 @@
  */
 package com.archimatetool.portico;
 
-import com.archimatetool.canvas.model.ICanvasModel;
-import com.archimatetool.model.IDiagramModel;
+import com.archimatetool.model.IDiagramModelObject;
 
 /**
  * Canvas View Importer
@@ -20,18 +19,7 @@ class CanvasViewImporter extends AbstractViewImporter {
     }
 
     @Override
-    IDiagramModel importView(IDiagramModel importedView) throws PorticoException {
-        ICanvasModel targetView = (ICanvasModel)super.importView(importedView);
-        
-        targetView.setHintContent(((ICanvasModel)importedView).getHintContent());
-        targetView.setHintTitle(((ICanvasModel)importedView).getHintTitle());
-        
-        return targetView;
-    }
-    
-    @Override
-    protected void updateChildObjects(IDiagramModel importedView, IDiagramModel targetView) {
-        super.updateChildObjects(importedView, targetView);
+    protected void updateDiagramModelObject(IDiagramModelObject importedObject, IDiagramModelObject targetObject) throws PorticoException {
     }
 
 }

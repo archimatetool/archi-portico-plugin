@@ -24,22 +24,20 @@ class ConceptImporter extends AbstractImporter {
         // Do we have this concept given its ID?
         IArchimateConcept targetConcept = importer.findObjectInTargetModel(importedConcept);
         
+        boolean createdNewConcept = false;
+        
         // We don't have it, so create a new concept
         if(targetConcept == null) {
             targetConcept = importer.cloneObject(importedConcept);
-            
-            // Relationship
-            if(importedConcept instanceof IArchimateRelationship) {
-                setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);
-            }
+            createdNewConcept = true;
         }
         else if(importer.doReplaceWithSource()) {
             importer.updateObject(importedConcept, targetConcept);
-
-            // Relationship
-            if(importedConcept instanceof IArchimateRelationship) {
-                setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);
-            }
+        }
+        
+        // Relationship ends
+        if((importer.doReplaceWithSource() || createdNewConcept) && importedConcept instanceof IArchimateRelationship) {
+            setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);
         }
         
         // Add to parent folder

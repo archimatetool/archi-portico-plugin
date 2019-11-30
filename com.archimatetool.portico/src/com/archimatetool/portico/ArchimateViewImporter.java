@@ -12,11 +12,12 @@ import org.eclipse.emf.ecore.EObject;
 
 import com.archimatetool.editor.diagram.commands.DiagramCommandFactory;
 import com.archimatetool.editor.model.DiagramModelUtils;
-import com.archimatetool.model.IArchimateDiagramModel;
+import com.archimatetool.model.IArchimateElement;
 import com.archimatetool.model.IArchimateRelationship;
-import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateComponent;
 import com.archimatetool.model.IDiagramModelArchimateConnection;
+import com.archimatetool.model.IDiagramModelArchimateObject;
+import com.archimatetool.model.IDiagramModelObject;
 
 /**
  * ArchiMate View Importer
@@ -30,17 +31,16 @@ class ArchimateViewImporter extends AbstractViewImporter {
     }
 
     @Override
-    IDiagramModel importView(IDiagramModel importedView) throws PorticoException {
-        IArchimateDiagramModel targetView = (IArchimateDiagramModel)super.importView(importedView);
-        
-        targetView.setViewpoint(((IArchimateDiagramModel)importedView).getViewpoint());
-        
-        return targetView;
-    }
-    
-    @Override
-    protected void updateChildObjects(IDiagramModel importedView, IDiagramModel targetView) {
-        super.updateChildObjects(importedView, targetView);
+    protected void updateDiagramModelObject(IDiagramModelObject importedObject, IDiagramModelObject targetObject) throws PorticoException {
+        if(targetObject instanceof IDiagramModelArchimateObject) {
+            // Set ArchiMate Element
+            IArchimateElement targetElement = importer.findObjectInTargetModel(((IDiagramModelArchimateObject)importedObject).getArchimateElement());
+            if(targetElement == null) {
+                throw new PorticoException("Could not find element: " + importedObject.getId()); //$NON-NLS-1$
+            }
+            
+            ((IDiagramModelArchimateObject)targetObject).setArchimateElement(targetElement);
+        }
     }
 
     /**

@@ -27,6 +27,8 @@ import com.archimatetool.editor.model.compatibility.ModelCompatibility;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateModel;
+import com.archimatetool.model.IArchimateModelObject;
+import com.archimatetool.model.ICloneable;
 import com.archimatetool.model.IDocumentable;
 import com.archimatetool.model.IFeature;
 import com.archimatetool.model.IFeatures;
@@ -210,16 +212,21 @@ public class ModelImporter {
     }
     
     /**
-     * Create a new object based on class of a given object and set its data to this one
+     * Create a new object based on class of a given object and set its data to that in the given object
      */
     @SuppressWarnings("unchecked")
-    <T extends IIdentifier> T cloneObject(T eObject) {
-        // Get the object's package and factory in case this is a Canvas which has its own factory
-        IIdentifier newObject = (IIdentifier)EcoreUtil.create(eObject.eClass());
+    <T extends IArchimateModelObject> T cloneObject(T eObject) {
+        IArchimateModelObject newObject;
+        
+        if(eObject instanceof ICloneable) {
+            newObject = (IArchimateModelObject)((ICloneable)eObject).getCopy();
+        }
+        else {
+            newObject = (IArchimateModelObject)EcoreUtil.create(eObject.eClass());
+            updateObject(eObject, newObject);
+        }
         
         newObject.setId(eObject.getId());
-        
-        updateObject(eObject, newObject);
         
         objectCache.put(newObject.getId(), newObject);
         
