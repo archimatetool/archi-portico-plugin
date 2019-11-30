@@ -5,8 +5,7 @@
  */
 package com.archimatetool.portico;
 
-import org.eclipse.emf.ecore.EObject;
-
+import com.archimatetool.model.FolderType;
 import com.archimatetool.model.IFolder;
 
 
@@ -47,8 +46,33 @@ class FolderImporter extends AbstractImporter {
         return targetFolder;
     }
     
-    @Override
-    protected IFolder getDefaultTargetFolderForTargetObject(IFolder importedParentFolder, EObject targetObject) {
-        return importer.getTargetModel().getFolder(importedParentFolder.getType());
+    /**
+     * Add target object to parent folder
+     * @param importedObject The imported object
+     * @param targetObject The target object
+     * @throws PorticoException
+     */
+    private void addToParentFolder(IFolder importedFolder, IFolder targetFolder) throws PorticoException {
+        // Imported object's parent folder
+        IFolder importedParentFolder = (IFolder)importedFolder.eContainer();
+
+        // Imported object's parent folder is a User folder
+        if(importedParentFolder.getType() == FolderType.USER) {
+            // Do we have this matching parent folder?
+            IFolder targetParentFolder = importer.findObjectInTargetModel(importedParentFolder);
+            // Yes, add the object to it
+            if(targetParentFolder != null) {
+                targetParentFolder.getFolders().add(targetFolder);
+            }
+            // No
+            else {
+                throw new PorticoException("Target parent folder was null"); //$NON-NLS-1$
+            }
+        }
+        // Parent is a top level folder
+        else {
+            IFolder targetParentFolder = importer.getTargetModel().getFolder(importedParentFolder.getType());
+            targetParentFolder.getFolders().add(targetFolder);
+        }
     }
 }

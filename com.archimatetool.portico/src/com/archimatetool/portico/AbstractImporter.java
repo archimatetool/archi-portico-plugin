@@ -48,15 +48,8 @@ abstract class AbstractImporter {
         }
         // Parent is a top level folder
         else {
-            IFolder targetFolder = getDefaultTargetFolderForTargetObject(importedParentFolder, targetObject);
-            targetFolder.getElements().add(targetObject);
+            IFolder targetParentFolder = importer.getTargetModel().getDefaultFolderForObject(targetObject);
+            targetParentFolder.getElements().add(targetObject);
         }
-    }
-    
-    /**
-     * When adding a target object to the target model return the folder to add it to
-     */
-    protected IFolder getDefaultTargetFolderForTargetObject(IFolder importedParentFolder, EObject targetObject) {
-        return importer.getTargetModel().getDefaultFolderForObject(targetObject);
     }
 }

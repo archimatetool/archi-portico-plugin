@@ -22,7 +22,7 @@ abstract class AbstractViewImporter extends AbstractImporter {
         // Do we have this View given its ID?
         IDiagramModel targetView = importer.findObjectInTargetModel(importedView);
         
-        // We don't have it, so create a new concept
+        // We don't have it, so create a new view
         if(targetView == null) {
             targetView = importer.cloneObject(importedView);
         }
