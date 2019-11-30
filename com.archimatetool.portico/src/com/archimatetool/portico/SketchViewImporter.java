@@ -5,7 +5,7 @@
  */
 package com.archimatetool.portico;
 
-import com.archimatetool.model.IDiagramModelObject;
+import com.archimatetool.model.IDiagramModelComponent;
 
 /**
  * Sketch View Importer
@@ -19,7 +19,6 @@ class SketchViewImporter extends AbstractViewImporter {
     }
 
     @Override
-    protected void updateDiagramModelObject(IDiagramModelObject importedObject, IDiagramModelObject targetObject) throws PorticoException {
+    protected void updateDiagramModelComponent(IDiagramModelComponent importedComponent, IDiagramModelComponent targetComponent) throws PorticoException {
     }
-
 }

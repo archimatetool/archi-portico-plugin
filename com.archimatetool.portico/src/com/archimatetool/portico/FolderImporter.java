@@ -20,7 +20,7 @@ class FolderImporter extends AbstractImporter {
         super(importer);
     }
 
-    IFolder importFolder(IFolder importedFolder) throws PorticoException {
+    void importFolder(IFolder importedFolder) throws PorticoException {
         // Do we have this folder given its ID?
         IFolder targetFolder = importer.findObjectInTargetModel(importedFolder);
         
@@ -42,8 +42,6 @@ class FolderImporter extends AbstractImporter {
         if(importedFolder.eContainer() instanceof IFolder) {
             addToParentFolder(importedFolder, targetFolder);
         }
-        
-        return targetFolder;
     }
     
     /**

@@ -12,12 +12,11 @@ import org.eclipse.emf.ecore.EObject;
 
 import com.archimatetool.editor.diagram.commands.DiagramCommandFactory;
 import com.archimatetool.editor.model.DiagramModelUtils;
-import com.archimatetool.model.IArchimateElement;
+import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateRelationship;
 import com.archimatetool.model.IDiagramModelArchimateComponent;
 import com.archimatetool.model.IDiagramModelArchimateConnection;
-import com.archimatetool.model.IDiagramModelArchimateObject;
-import com.archimatetool.model.IDiagramModelObject;
+import com.archimatetool.model.IDiagramModelComponent;
 
 /**
  * ArchiMate View Importer
@@ -31,15 +30,15 @@ class ArchimateViewImporter extends AbstractViewImporter {
     }
 
     @Override
-    protected void updateDiagramModelObject(IDiagramModelObject importedObject, IDiagramModelObject targetObject) throws PorticoException {
-        if(targetObject instanceof IDiagramModelArchimateObject) {
-            // Set ArchiMate Element
-            IArchimateElement targetElement = importer.findObjectInTargetModel(((IDiagramModelArchimateObject)importedObject).getArchimateElement());
-            if(targetElement == null) {
-                throw new PorticoException("Could not find element: " + importedObject.getId()); //$NON-NLS-1$
+    protected void updateDiagramModelComponent(IDiagramModelComponent importedComponent, IDiagramModelComponent targetComponent) throws PorticoException {
+        if(targetComponent instanceof IDiagramModelArchimateComponent) {
+            // Set ArchiMate Relationship
+            IArchimateConcept targetConcept = importer.findObjectInTargetModel(((IDiagramModelArchimateComponent)importedComponent).getArchimateConcept());
+            if(targetConcept == null) {
+                throw new PorticoException("Could not find concept in target: " + importedComponent.getId()); //$NON-NLS-1$
             }
             
-            ((IDiagramModelArchimateObject)targetObject).setArchimateElement(targetElement);
+            ((IDiagramModelArchimateComponent)targetComponent).setArchimateConcept(targetConcept);
         }
     }
 
