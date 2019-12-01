@@ -46,10 +46,10 @@ import com.archimatetool.model.util.ArchimateResourceFactory;
  */
 public class ModelImporter {
     
-    private boolean replaceWithSource;
+    boolean replaceWithSource;
     
-    private IArchimateModel importedModel;
-    private IArchimateModel targetModel;
+    IArchimateModel importedModel;
+    IArchimateModel targetModel;
     
     // Keep a cache of objects in the target model for speed
     private Map<String, IIdentifier> objectCache;
@@ -112,18 +112,6 @@ public class ModelImporter {
         }
         
         objectCache.clear();
-    }
-    
-    boolean doReplaceWithSource() {
-        return replaceWithSource;
-    }
-    
-    IArchimateModel getImportedModel() {
-        return importedModel;
-    }
-
-    IArchimateModel getTargetModel() {
-        return targetModel;
     }
     
     /**

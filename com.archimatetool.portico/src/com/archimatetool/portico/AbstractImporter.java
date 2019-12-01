@@ -8,7 +8,10 @@ package com.archimatetool.portico;
 import org.eclipse.emf.ecore.EObject;
 
 import com.archimatetool.model.FolderType;
+import com.archimatetool.model.IArchimateModel;
+import com.archimatetool.model.IArchimateModelObject;
 import com.archimatetool.model.IFolder;
+import com.archimatetool.model.IIdentifier;
 
 /**
  * Abstract Importer
@@ -17,10 +20,34 @@ import com.archimatetool.model.IFolder;
  */
 abstract class AbstractImporter {
     
-    protected ModelImporter importer;
+    private ModelImporter importer;
     
     protected AbstractImporter(ModelImporter importer) {
         this.importer = importer;
+    }
+    
+    protected boolean doReplaceWithSource() {
+        return importer.replaceWithSource;
+    }
+    
+    protected <T extends IIdentifier> T findObjectInTargetModel(T eObject) throws PorticoException {
+        return importer.findObjectInTargetModel(eObject);
+    }
+    
+    protected <T extends IArchimateModelObject> T cloneObject(T eObject) {
+        return importer.cloneObject(eObject);
+    }
+    
+    protected void updateObject(EObject source, EObject target) {
+        importer.updateObject(source, target);
+    }
+    
+    protected IArchimateModel getImportedModel() {
+        return importer.importedModel;
+    }
+
+    protected IArchimateModel getTargetModel() {
+        return importer.targetModel;
     }
     
     /**
@@ -48,7 +75,7 @@ abstract class AbstractImporter {
         }
         // Parent is a top level folder
         else {
-            IFolder targetParentFolder = importer.getTargetModel().getDefaultFolderForObject(targetObject);
+            IFolder targetParentFolder = importer.targetModel.getDefaultFolderForObject(targetObject);
             targetParentFolder.getElements().add(targetObject);
         }
     }

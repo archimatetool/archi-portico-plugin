@@ -22,20 +22,20 @@ class FolderImporter extends AbstractImporter {
 
     IFolder importFolder(IFolder importedFolder) throws PorticoException {
         // Do we have this folder given its ID?
-        IFolder targetFolder = importer.findObjectInTargetModel(importedFolder);
+        IFolder targetFolder = findObjectInTargetModel(importedFolder);
         
         // We don't have it
         if(targetFolder == null) {
             // Is it a top level folder?
-            targetFolder = importer.getTargetModel().getFolder(importedFolder.getType());
+            targetFolder = getTargetModel().getFolder(importedFolder.getType());
             
             // No, so create a new folder
             if(targetFolder == null) {
-                targetFolder = importer.cloneObject(importedFolder);
+                targetFolder = cloneObject(importedFolder);
             }
         }
-        else if(importer.doReplaceWithSource()) {
-            importer.updateObject(importedFolder, targetFolder);
+        else if(doReplaceWithSource()) {
+            updateObject(importedFolder, targetFolder);
         }
 
         // Add to parent folder (if it's a sub-folder)
@@ -59,7 +59,7 @@ class FolderImporter extends AbstractImporter {
         // Imported object's parent folder is a User folder
         if(importedParentFolder.getType() == FolderType.USER) {
             // Do we have this matching parent folder?
-            IFolder targetParentFolder = importer.findObjectInTargetModel(importedParentFolder);
+            IFolder targetParentFolder = findObjectInTargetModel(importedParentFolder);
             // Yes, add the object to it
             if(targetParentFolder != null) {
                 targetParentFolder.getFolders().add(targetFolder);
@@ -71,7 +71,7 @@ class FolderImporter extends AbstractImporter {
         }
         // Parent is a top level folder
         else {
-            IFolder targetParentFolder = importer.getTargetModel().getFolder(importedParentFolder.getType());
+            IFolder targetParentFolder = getTargetModel().getFolder(importedParentFolder.getType());
             targetParentFolder.getFolders().add(targetFolder);
         }
     }

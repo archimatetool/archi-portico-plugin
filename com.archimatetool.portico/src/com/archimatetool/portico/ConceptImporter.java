@@ -22,21 +22,21 @@ class ConceptImporter extends AbstractImporter {
     
     IArchimateConcept importConcept(IArchimateConcept importedConcept) throws PorticoException {
         // Do we have this concept given its ID?
-        IArchimateConcept targetConcept = importer.findObjectInTargetModel(importedConcept);
+        IArchimateConcept targetConcept = findObjectInTargetModel(importedConcept);
         
         boolean createdNewConcept = false;
         
         // We don't have it, so create a new concept
         if(targetConcept == null) {
-            targetConcept = importer.cloneObject(importedConcept);
+            targetConcept = cloneObject(importedConcept);
             createdNewConcept = true;
         }
-        else if(importer.doReplaceWithSource()) {
-            importer.updateObject(importedConcept, targetConcept);
+        else if(doReplaceWithSource()) {
+            updateObject(importedConcept, targetConcept);
         }
         
         // Relationship ends
-        if((importer.doReplaceWithSource() || createdNewConcept) && importedConcept instanceof IArchimateRelationship) {
+        if((doReplaceWithSource() || createdNewConcept) && importedConcept instanceof IArchimateRelationship) {
             setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);
         }
         
@@ -47,13 +47,13 @@ class ConceptImporter extends AbstractImporter {
     }
     
     private void setRelationshipEnds(IArchimateRelationship importedRelationship, IArchimateRelationship targetRelationship) throws PorticoException {
-        IArchimateConcept source = importer.findObjectInTargetModel(importedRelationship.getSource());
+        IArchimateConcept source = findObjectInTargetModel(importedRelationship.getSource());
         if(source == null) {
             source = importConcept(importedRelationship.getSource());
         }
         targetRelationship.setSource(source);
         
-        IArchimateConcept target = importer.findObjectInTargetModel(importedRelationship.getTarget());
+        IArchimateConcept target = findObjectInTargetModel(importedRelationship.getTarget());
         if(target == null) {
             source = importConcept(importedRelationship.getTarget());
         }

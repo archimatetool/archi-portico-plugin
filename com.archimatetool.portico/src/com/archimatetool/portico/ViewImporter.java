@@ -38,17 +38,17 @@ class ViewImporter extends AbstractImporter {
 
     IDiagramModel importView(IDiagramModel importedView) throws PorticoException {
         // Do we have this View given its ID?
-        IDiagramModel targetView = importer.findObjectInTargetModel(importedView);
+        IDiagramModel targetView = findObjectInTargetModel(importedView);
         
         boolean createdNewView = false;
         
         // We don't have it, so create a new view
         if(targetView == null) {
-            targetView = importer.cloneObject(importedView);
+            targetView = cloneObject(importedView);
             createdNewView = true;
         }
-        else if(importer.doReplaceWithSource()) {
-            importer.updateObject(importedView, targetView);
+        else if(doReplaceWithSource()) {
+            updateObject(importedView, targetView);
             
             // Connection type
             targetView.setConnectionRouterType(importedView.getConnectionRouterType());
@@ -63,7 +63,7 @@ class ViewImporter extends AbstractImporter {
             createConnections(importedView);
         }
         // View exists, update it
-        else if(importer.doReplaceWithSource()) {
+        else if(doReplaceWithSource()) {
             updateChildObjects(importedView, targetView);
         }
 
@@ -75,7 +75,7 @@ class ViewImporter extends AbstractImporter {
      */
     private void createChildObjects(IDiagramModelContainer importedParent, IDiagramModelContainer targetParent) throws PorticoException {
         for(IDiagramModelObject importedObject : importedParent.getChildren()) {
-            IDiagramModelObject targetObject = importer.cloneObject(importedObject);
+            IDiagramModelObject targetObject = cloneObject(importedObject);
             targetParent.getChildren().add(targetObject);
             
             updateDiagramModelComponent(importedObject, targetObject);
@@ -97,7 +97,7 @@ class ViewImporter extends AbstractImporter {
         for(Iterator<EObject> iter = importedView.eAllContents(); iter.hasNext();) {
             EObject importedObject = iter.next();
             if(importedObject instanceof IDiagramModelConnection) {
-                connections.put((IDiagramModelConnection)importedObject, importer.cloneObject((IDiagramModelConnection)importedObject));
+                connections.put((IDiagramModelConnection)importedObject, cloneObject((IDiagramModelConnection)importedObject));
             }
         }
         
@@ -106,12 +106,12 @@ class ViewImporter extends AbstractImporter {
             IDiagramModelConnection importedConnection = entry.getKey();
             IDiagramModelConnection targetConnection = entry.getValue();
             
-            IConnectable targetSource = importer.findObjectInTargetModel(importedConnection.getSource());
+            IConnectable targetSource = findObjectInTargetModel(importedConnection.getSource());
             if(targetSource == null) {
                 throw new PorticoException("Could not find target component: " + importedConnection.getSource().getId()); //$NON-NLS-1$
             }
             
-            IConnectable targetTarget = importer.findObjectInTargetModel(importedConnection.getTarget());
+            IConnectable targetTarget = findObjectInTargetModel(importedConnection.getTarget());
             if(targetTarget == null) {
                 throw new PorticoException("Could not find target component: " + importedConnection.getTarget().getId()); //$NON-NLS-1$
             }
@@ -128,7 +128,7 @@ class ViewImporter extends AbstractImporter {
     private void updateDiagramModelComponent(IDiagramModelComponent importedComponent, IDiagramModelComponent targetComponent) throws PorticoException {
         // Set ArchiMate Concept
         if(targetComponent instanceof IDiagramModelArchimateComponent) {
-            IArchimateConcept targetConcept = importer.findObjectInTargetModel(((IDiagramModelArchimateComponent)importedComponent).getArchimateConcept());
+            IArchimateConcept targetConcept = findObjectInTargetModel(((IDiagramModelArchimateComponent)importedComponent).getArchimateConcept());
             if(targetConcept == null) {
                 throw new PorticoException("Could not find concept in target: " + importedComponent.getId()); //$NON-NLS-1$
             }
@@ -151,8 +151,8 @@ class ViewImporter extends AbstractImporter {
      * Iterate through the target model for post-processing
      */
     void postProcess() {
-        if(importer.doReplaceWithSource()) {
-            for(Iterator<EObject> iter = importer.getTargetModel().eAllContents(); iter.hasNext();) {
+        if(doReplaceWithSource()) {
+            for(Iterator<EObject> iter = getTargetModel().eAllContents(); iter.hasNext();) {
                 EObject eObject = iter.next();
                 
                 // Archimate View Connections might need reconnecting
