@@ -5,7 +5,6 @@
  */
 package com.archimatetool.portico;
 
-import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelComponent;
 import com.archimatetool.model.ISketchModel;
 
@@ -21,14 +20,21 @@ class SketchViewImporter extends AbstractViewImporter {
     }
 
     @Override
-    protected void updateView(IDiagramModel importedView, IDiagramModel targetView) {
-        super.updateView(importedView, targetView);
-        
-        ISketchModel importedSketchView = (ISketchModel)importedView;
-        ISketchModel targetSketchView = (ISketchModel)targetView;
+    protected void updateView() {
+        super.updateView();
         
         // Background
-        targetSketchView.setBackground(importedSketchView.getBackground());
+        getTargetView().setBackground(getImportedView().getBackground());
+    }
+
+    @Override
+    protected ISketchModel getImportedView() {
+        return (ISketchModel)super.getImportedView();
+    }
+    
+    @Override
+    protected ISketchModel getTargetView() {
+        return (ISketchModel)super.getTargetView();
     }
 
     @Override

@@ -5,17 +5,9 @@
  */
 package com.archimatetool.portico;
 
-import java.util.Iterator;
-import java.util.List;
-
-import org.eclipse.emf.ecore.EObject;
-
-import com.archimatetool.editor.diagram.commands.DiagramCommandFactory;
-import com.archimatetool.editor.model.DiagramModelUtils;
 import com.archimatetool.model.IArchimateConcept;
-import com.archimatetool.model.IArchimateRelationship;
+import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateComponent;
-import com.archimatetool.model.IDiagramModelArchimateConnection;
 import com.archimatetool.model.IDiagramModelComponent;
 
 /**
@@ -27,6 +19,24 @@ class ArchimateViewImporter extends AbstractViewImporter {
     
     ArchimateViewImporter(ModelImporter importer) {
         super(importer);
+    }
+
+    @Override
+    protected void updateView() {
+        super.updateView();
+        
+        // Viewpoint
+        getTargetView().setViewpoint(getImportedView().getViewpoint());
+    }
+    
+    @Override
+    protected IArchimateDiagramModel getImportedView() {
+        return (IArchimateDiagramModel)super.getImportedView();
+    }
+    
+    @Override
+    protected IArchimateDiagramModel getTargetView() {
+        return (IArchimateDiagramModel)super.getTargetView();
     }
 
     @Override
@@ -42,59 +52,4 @@ class ArchimateViewImporter extends AbstractViewImporter {
         }
     }
 
-    // =============================================================================================
-    // Post processing
-    // =============================================================================================
-    
-    /**
-     * Iterate through the target model for post-processing
-     */
-    void postProcess() {
-        if(doReplaceWithSource()) {
-            for(Iterator<EObject> iter = getTargetModel().eAllContents(); iter.hasNext();) {
-                EObject eObject = iter.next();
-                
-                // Archimate View Connections might need reconnecting
-                if(eObject instanceof IDiagramModelArchimateConnection) {
-                    doArchimateReconnection((IDiagramModelArchimateConnection)eObject);
-                }
-            }
-        }
-    }
-    
-    /**
-     * Reconnect archimate connections in case of relationship ends having changed
-     */
-    private void doArchimateReconnection(IDiagramModelArchimateConnection connection) {
-        IArchimateRelationship relationship = connection.getArchimateRelationship();
-
-        // Is source object valid?
-        if(((IDiagramModelArchimateComponent)connection.getSource()).getArchimateConcept() != relationship.getSource()) {
-            // Get the first instance of the new source in this view and connect to that
-            List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(connection.getDiagramModel(),
-                    relationship.getSource());
-            if(!list.isEmpty()) {
-                IDiagramModelArchimateComponent matchingComponent = list.get(0);
-                connection.connect(matchingComponent, connection.getTarget());
-            }
-            // Not found, so delete the matching connection
-            else {
-                DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection).execute();
-            }
-        }
-
-        // Is target object valid?
-        if(((IDiagramModelArchimateComponent)connection.getTarget()).getArchimateConcept() != relationship.getTarget()) {
-            // Get the first instance of the new source in this view and connect to that
-            List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(connection.getDiagramModel(), relationship.getTarget());
-            if(!list.isEmpty()) {
-                IDiagramModelArchimateComponent matchingComponent = list.get(0);
-                connection.connect(connection.getSource(), matchingComponent);
-            }
-            // Not found, so delete the matching connection
-            else {
-                DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection).execute();
-            }
-        }
-    }
 }

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
@@ -19,6 +20,8 @@ import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.osgi.util.NLS;
 
 import com.archimatetool.canvas.model.ICanvasModel;
+import com.archimatetool.editor.diagram.commands.DiagramCommandFactory;
+import com.archimatetool.editor.model.DiagramModelUtils;
 import com.archimatetool.editor.model.IArchiveManager;
 import com.archimatetool.editor.model.IEditorModelManager;
 import com.archimatetool.editor.model.compatibility.CompatibilityHandlerException;
@@ -28,7 +31,10 @@ import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateModelObject;
+import com.archimatetool.model.IArchimateRelationship;
 import com.archimatetool.model.ICloneable;
+import com.archimatetool.model.IDiagramModelArchimateComponent;
+import com.archimatetool.model.IDiagramModelArchimateConnection;
 import com.archimatetool.model.IDocumentable;
 import com.archimatetool.model.IFeature;
 import com.archimatetool.model.IFeatures;
@@ -71,18 +77,10 @@ public class ModelImporter {
         
         // Upate root model information
         if(replaceWithSource) {
-            // TODO: Should we set model name etc?
-            //targetModel.setName(importedModel.getName());
             targetModel.setPurpose(importedModel.getPurpose());
             updateProperties(importedModel, targetModel);
             updateFeatures(importedModel, targetModel);
         }
-        
-        FolderImporter folderImporter = new FolderImporter(this);
-        ConceptImporter conceptImporter = new ConceptImporter(this);
-        ArchimateViewImporter archimateViewImporter = new ArchimateViewImporter(this);
-        CanvasViewImporter canvasViewImporter = new CanvasViewImporter(this);
-        SketchViewImporter sketchViewImporter = new SketchViewImporter(this);
         
         // Iterate through all model contents
         for(Iterator<EObject> iter = importedModel.eAllContents(); iter.hasNext();) {
@@ -90,26 +88,26 @@ public class ModelImporter {
             
             // Update folders
             if(eObject instanceof IFolder) {
-                folderImporter.importFolder((IFolder)eObject);
+                new FolderImporter(this).importFolder((IFolder)eObject);
             }
             // Update concepts
             else if(eObject instanceof IArchimateConcept) {
-                conceptImporter.importConcept((IArchimateConcept)eObject);
+                new ConceptImporter(this).importConcept((IArchimateConcept)eObject);
             }
             // Update Views
             else if(eObject instanceof IArchimateDiagramModel) {
-                archimateViewImporter.importView((IArchimateDiagramModel)eObject);
+                new ArchimateViewImporter(this).importView((IArchimateDiagramModel)eObject);
             }
             else if(eObject instanceof ISketchModel) {
-                sketchViewImporter.importView((ISketchModel)eObject);
+                new SketchViewImporter(this).importView((ISketchModel)eObject);
             }
             else if(eObject instanceof ICanvasModel) {
-                canvasViewImporter.importView((ICanvasModel)eObject);
+                new CanvasViewImporter(this).importView((ICanvasModel)eObject);
             }
         }
         
-        // Post processing
-        archimateViewImporter.postProcess();
+        // Post processing of the whole model
+        postProcessModel();
         
         // Now we can update the UI
         IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_END, false, true);
@@ -171,6 +169,62 @@ public class ModelImporter {
         // archiveManager.loadImages();
         
         return model;
+    }
+
+    // =============================================================================================
+    // Post processing of model
+    // =============================================================================================
+    
+    /**
+     * Iterate through the target model for post-processing
+     */
+    void postProcessModel() {
+        if(replaceWithSource) {
+            for(Iterator<EObject> iter = targetModel.eAllContents(); iter.hasNext();) {
+                EObject eObject = iter.next();
+                
+                // Archimate View Connections might need reconnecting
+                if(eObject instanceof IDiagramModelArchimateConnection) {
+                    doArchimateReconnection((IDiagramModelArchimateConnection)eObject);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Reconnect archimate connections in case of relationship ends having changed
+     */
+    private void doArchimateReconnection(IDiagramModelArchimateConnection connection) {
+        IArchimateRelationship relationship = connection.getArchimateRelationship();
+
+        // Is source object valid?
+        if(((IDiagramModelArchimateComponent)connection.getSource()).getArchimateConcept() != relationship.getSource()) {
+            // Get the first instance of the new source in this view and connect to that
+            List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(connection.getDiagramModel(),
+                    relationship.getSource());
+            if(!list.isEmpty()) {
+                IDiagramModelArchimateComponent matchingComponent = list.get(0);
+                connection.connect(matchingComponent, connection.getTarget());
+            }
+            // Not found, so delete the matching connection
+            else {
+                DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection).execute();
+            }
+        }
+
+        // Is target object valid?
+        if(((IDiagramModelArchimateComponent)connection.getTarget()).getArchimateConcept() != relationship.getTarget()) {
+            // Get the first instance of the new source in this view and connect to that
+            List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(connection.getDiagramModel(), relationship.getTarget());
+            if(!list.isEmpty()) {
+                IDiagramModelArchimateComponent matchingComponent = list.get(0);
+                connection.connect(connection.getSource(), matchingComponent);
+            }
+            // Not found, so delete the matching connection
+            else {
+                DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection).execute();
+            }
+        }
     }
 
     // ===================================================================================

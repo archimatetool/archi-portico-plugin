@@ -25,13 +25,18 @@ import com.archimatetool.model.IDiagramModelObject;
  */
 abstract class AbstractViewImporter extends AbstractImporter {
     
+    private IDiagramModel importedView;
+    private IDiagramModel targetView;
+    
     AbstractViewImporter(ModelImporter importer) {
         super(importer);
     }
 
     IDiagramModel importView(IDiagramModel importedView) throws PorticoException {
+        this.importedView = importedView;
+        
         // Do we have this View given its ID?
-        IDiagramModel targetView = findObjectInTargetModel(importedView);
+        targetView = findObjectInTargetModel(importedView);
         
         boolean createdNewView = false;
         
@@ -41,7 +46,7 @@ abstract class AbstractViewImporter extends AbstractImporter {
             createdNewView = true;
         }
         else if(doReplaceWithSource()) {
-            updateView(importedView, targetView);
+            updateView();
         }
         
         // Add to parent folder
@@ -60,11 +65,19 @@ abstract class AbstractViewImporter extends AbstractImporter {
         return targetView;
     }
     
-    protected void updateView(IDiagramModel importedView, IDiagramModel targetView) {
-        super.updateObject(importedView, targetView);
+    protected IDiagramModel getImportedView() {
+        return importedView;
+    }
+    
+    protected IDiagramModel getTargetView() {
+        return targetView;
+    }
+    
+    protected void updateView() {
+        super.updateObject(getImportedView(), getTargetView());
         
         // Connection Router
-        targetView.setConnectionRouterType(importedView.getConnectionRouterType());
+        getTargetView().setConnectionRouterType(getImportedView().getConnectionRouterType());
     }
     
     /**
