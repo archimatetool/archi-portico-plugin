@@ -75,13 +75,6 @@ public class ModelImporter {
         // Don't update UI on each event
         IEditorModelManager.INSTANCE.firePropertyChange(this, IEditorModelManager.PROPERTY_ECORE_EVENTS_START, false, true);
         
-        // Upate root model information
-        if(replaceWithSource) {
-            targetModel.setPurpose(importedModel.getPurpose());
-            updateProperties(importedModel, targetModel);
-            updateFeatures(importedModel, targetModel);
-        }
-        
         // Iterate through all model contents
         for(Iterator<EObject> iter = importedModel.eAllContents(); iter.hasNext();) {
             EObject eObject = iter.next();
