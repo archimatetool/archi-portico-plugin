@@ -16,9 +16,11 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 import com.archimatetool.editor.model.IEditorModelManager;
 import com.archimatetool.editor.model.ISelectedModelImporter;
+import com.archimatetool.editor.model.ModelChecker;
 import com.archimatetool.editor.ui.components.ExtendedWizardDialog;
 import com.archimatetool.model.IArchimateModel;
 
@@ -36,7 +38,7 @@ public class PorticoImportProvider implements ISelectedModelImporter {
     @Override
     public void doImport(IArchimateModel targetModel) throws IOException {
         if(IEditorModelManager.INSTANCE.isModelDirty(targetModel)) {
-            boolean doSave = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
+            boolean doSave = MessageDialog.openConfirm(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
                     Messages.PorticoImportProvider_0,
                     Messages.PorticoImportProvider_1);
                     
@@ -51,7 +53,7 @@ public class PorticoImportProvider implements ISelectedModelImporter {
         
         ImportModelWizard wizard = new ImportModelWizard();
         
-        WizardDialog dialog = new ExtendedWizardDialog(Display.getCurrent().getActiveShell(),
+        WizardDialog dialog = new ExtendedWizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
                 wizard,
                 "ImportModelWizard") { //$NON-NLS-1$
 
@@ -85,6 +87,12 @@ public class PorticoImportProvider implements ISelectedModelImporter {
             
             if(ex[0] != null) {
                 throw new IOException(ex[0]);
+            }
+            
+            // Run the Model checker now
+            ModelChecker checker = new ModelChecker(targetModel);
+            if(!checker.checkAll()) {
+                checker.showErrorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
             }
         }
     }
