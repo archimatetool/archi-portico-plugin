@@ -55,7 +55,7 @@ class ConceptImporter extends AbstractImporter {
         
         IArchimateConcept target = findObjectInTargetModel(importedRelationship.getTarget());
         if(target == null) {
-            source = importConcept(importedRelationship.getTarget());
+            target = importConcept(importedRelationship.getTarget());
         }
         targetRelationship.setTarget(target);
     }
