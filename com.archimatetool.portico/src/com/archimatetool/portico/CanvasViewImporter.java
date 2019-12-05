@@ -21,6 +21,8 @@ class CanvasViewImporter extends AbstractViewImporter {
 
     @Override
     protected void updateView() {
+        super.updateView();
+        
         // Hint stuff
         getTargetView().setHintTitle(getImportedView().getHintTitle());
         getTargetView().setHintContent(getImportedView().getHintContent());

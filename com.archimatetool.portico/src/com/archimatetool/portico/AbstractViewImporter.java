@@ -35,10 +35,10 @@ abstract class AbstractViewImporter extends AbstractImporter {
     IDiagramModel importView(IDiagramModel importedView) throws PorticoException {
         this.importedView = importedView;
         
+        boolean createdNewView = false;
+        
         // Do we have this View given its ID?
         targetView = findObjectInTargetModel(importedView);
-        
-        boolean createdNewView = false;
         
         // We don't have it, so create a new view
         if(targetView == null) {
@@ -133,7 +133,8 @@ abstract class AbstractViewImporter extends AbstractImporter {
     }
     
     /**
-     * Update a DiagramModelComponent
+     * Update a DiagramModelComponent as necessary
+     * @throws PorticoException 
      */
     protected abstract void updateDiagramModelComponent(IDiagramModelComponent importedComponent, IDiagramModelComponent targetComponent) throws PorticoException;
     
