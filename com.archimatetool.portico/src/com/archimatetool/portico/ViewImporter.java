@@ -11,31 +11,34 @@ import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EObject;
 
+import com.archimatetool.canvas.model.ICanvasModel;
+import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IConnectable;
 import com.archimatetool.model.IDiagramModel;
-import com.archimatetool.model.IDiagramModelComponent;
+import com.archimatetool.model.IDiagramModelArchimateComponent;
+import com.archimatetool.model.IDiagramModelArchimateConnection;
+import com.archimatetool.model.IDiagramModelArchimateObject;
 import com.archimatetool.model.IDiagramModelConnection;
 import com.archimatetool.model.IDiagramModelContainer;
 import com.archimatetool.model.IDiagramModelObject;
+import com.archimatetool.model.ISketchModel;
 
 /**
- * Absract View Importer
+ * View Importer
  * 
  * @author Phillip Beauvoir
  */
-abstract class AbstractViewImporter extends AbstractImporter {
+class ViewImporter extends AbstractImporter {
     
     private IDiagramModel importedView;
     private IDiagramModel targetView;
     
-    AbstractViewImporter(ModelImporter importer) {
+    ViewImporter(ModelImporter importer) {
         super(importer);
     }
 
     IDiagramModel importView(IDiagramModel importedView) throws PorticoException {
         this.importedView = importedView;
-        
-        boolean createdNewView = false;
         
         // Do we have this View given its ID?
         targetView = findObjectInTargetModel(importedView);
@@ -43,41 +46,41 @@ abstract class AbstractViewImporter extends AbstractImporter {
         // We don't have it, so create a new view
         if(targetView == null) {
             targetView = cloneObject(importedView);
-            createdNewView = true;
+            createChildObjects(importedView, targetView);
+            createConnections();
         }
+        // We have it so update it
         else if(doReplaceWithSource()) {
             updateView();
+            targetView.getChildren().clear(); // clear all child objects
+            createChildObjects(importedView, targetView);
+            createConnections();
         }
         
-        // Add to parent folder
+        // Add to parent folder (we need to do this in any case since it may have moved)
         addToParentFolder(importedView, targetView);
         
-        // New view created
-        if(createdNewView) {
-            createChildObjects(importedView, targetView);
-            createConnections(importedView);
-        }
-        // View exists, update it
-        else if(doReplaceWithSource()) {
-            updateChildObjects(importedView, targetView);
-        }
-
         return targetView;
     }
     
-    protected IDiagramModel getImportedView() {
-        return importedView;
-    }
-    
-    protected IDiagramModel getTargetView() {
-        return targetView;
-    }
-    
-    protected void updateView() {
-        super.updateObject(getImportedView(), getTargetView());
+    private void updateView() {
+        super.updateObject(importedView, targetView);
         
         // Connection Router
-        getTargetView().setConnectionRouterType(getImportedView().getConnectionRouterType());
+        targetView.setConnectionRouterType(importedView.getConnectionRouterType());
+        
+        // Sketch View
+        if(targetView instanceof ISketchModel) {
+            // Background
+            ((ISketchModel)targetView).setBackground(((ISketchModel)importedView).getBackground());
+        }
+        
+        // Canvas View
+        if(targetView instanceof ICanvasModel) {
+            // Hint stuff
+            ((ICanvasModel)targetView).setHintTitle(((ICanvasModel)importedView).getHintTitle());
+            ((ICanvasModel)targetView).setHintContent(((ICanvasModel)importedView).getHintContent());
+        }
     }
     
     /**
@@ -88,8 +91,12 @@ abstract class AbstractViewImporter extends AbstractImporter {
             IDiagramModelObject targetObject = cloneObject(importedObject);
             targetParent.getChildren().add(targetObject);
             
-            updateDiagramModelComponent(importedObject, targetObject);
+            // Archimate object so set Archimate concept
+            if(targetObject instanceof IDiagramModelArchimateObject) {
+                setArchimateConcept((IDiagramModelArchimateObject)importedObject, (IDiagramModelArchimateObject)targetObject);
+            }
             
+            // Recuse child objects
             if(importedObject instanceof IDiagramModelContainer) {
                 createChildObjects((IDiagramModelContainer)importedObject, (IDiagramModelContainer)targetObject);
             }
@@ -97,10 +104,10 @@ abstract class AbstractViewImporter extends AbstractImporter {
     }
     
     /**
-     * Create and sdd new diagram connections
+     * Create and add new diagram connections
      * Do this in two passes in case there are connection -> connections
      */
-    private void createConnections(IDiagramModel importedView) throws PorticoException {
+    private void createConnections() throws PorticoException {
         Hashtable<IDiagramModelConnection, IDiagramModelConnection> connections = new Hashtable<>();
         
         // Create new connections. They will be cached in ModelImporter
@@ -128,19 +135,24 @@ abstract class AbstractViewImporter extends AbstractImporter {
             
             targetConnection.connect(targetSource, targetTarget);
             
-            updateDiagramModelComponent(importedConnection, targetConnection);
+            // Archimate connection so set Archimate concept
+            if(targetConnection instanceof IDiagramModelArchimateConnection) {
+                setArchimateConcept((IDiagramModelArchimateConnection)importedConnection, (IDiagramModelArchimateConnection)targetConnection);
+            }
         }
     }
     
     /**
-     * Update a DiagramModelComponent as necessary
-     * @throws PorticoException 
+     * Set the Archimate concept in the IDiagramModelArchimateComponent
      */
-    protected abstract void updateDiagramModelComponent(IDiagramModelComponent importedComponent, IDiagramModelComponent targetComponent) throws PorticoException;
-    
-    private void updateChildObjects(IDiagramModelContainer importedParent, IDiagramModelContainer targetParent) throws PorticoException {
-        for(IDiagramModelObject importedObject : importedParent.getChildren()) {
-            
+    private void setArchimateConcept(IDiagramModelArchimateComponent importedComponent, IDiagramModelArchimateComponent targetComponent) throws PorticoException {
+        // Set ArchiMate Concept
+        IArchimateConcept targetConcept = findObjectInTargetModel(importedComponent.getArchimateConcept());
+        
+        if(targetConcept == null) {
+            throw new PorticoException("Could not find concept in target: " + importedComponent.getId()); //$NON-NLS-1$
         }
+        
+        targetComponent.setArchimateConcept(targetConcept);
     }
 }

@@ -19,7 +19,6 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.osgi.util.NLS;
 
-import com.archimatetool.canvas.model.ICanvasModel;
 import com.archimatetool.editor.diagram.commands.DiagramCommandFactory;
 import com.archimatetool.editor.model.DiagramModelUtils;
 import com.archimatetool.editor.model.IArchiveManager;
@@ -28,11 +27,11 @@ import com.archimatetool.editor.model.compatibility.CompatibilityHandlerExceptio
 import com.archimatetool.editor.model.compatibility.IncompatibleModelException;
 import com.archimatetool.editor.model.compatibility.ModelCompatibility;
 import com.archimatetool.model.IArchimateConcept;
-import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateModelObject;
 import com.archimatetool.model.IArchimateRelationship;
 import com.archimatetool.model.ICloneable;
+import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateComponent;
 import com.archimatetool.model.IDiagramModelArchimateConnection;
 import com.archimatetool.model.IDocumentable;
@@ -43,7 +42,6 @@ import com.archimatetool.model.IIdentifier;
 import com.archimatetool.model.INameable;
 import com.archimatetool.model.IProperties;
 import com.archimatetool.model.IProperty;
-import com.archimatetool.model.ISketchModel;
 import com.archimatetool.model.util.ArchimateResourceFactory;
 
 
@@ -88,14 +86,8 @@ public class ModelImporter {
                 new ConceptImporter(this).importConcept((IArchimateConcept)eObject);
             }
             // Update Views
-            else if(eObject instanceof IArchimateDiagramModel) {
-                new ArchimateViewImporter(this).importView((IArchimateDiagramModel)eObject);
-            }
-            else if(eObject instanceof ISketchModel) {
-                new SketchViewImporter(this).importView((ISketchModel)eObject);
-            }
-            else if(eObject instanceof ICanvasModel) {
-                new CanvasViewImporter(this).importView((ICanvasModel)eObject);
+            else if(eObject instanceof IDiagramModel) {
+                new ViewImporter(this).importView((IDiagramModel)eObject);
             }
         }
         
