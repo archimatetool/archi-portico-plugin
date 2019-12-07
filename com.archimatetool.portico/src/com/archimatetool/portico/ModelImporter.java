@@ -148,10 +148,10 @@ public class ModelImporter {
         model.setFile(file);
         model.setDefaults();
         
-        // Do we need to load an ArchiveManager for images in canvasses?
-        // IArchiveManager archiveManager = IArchiveManager.FACTORY.createArchiveManager(model);
-        // model.setAdapter(IArchiveManager.class, archiveManager);
-        // archiveManager.loadImages();
+        // We need to have an ArchiveManager for images in canvasses
+        IArchiveManager archiveManager = IArchiveManager.FACTORY.createArchiveManager(model);
+        model.setAdapter(IArchiveManager.class, archiveManager);
+        archiveManager.loadImages();
         
         return model;
     }

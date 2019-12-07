@@ -5,6 +5,7 @@
  */
 package com.archimatetool.portico;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -12,6 +13,7 @@ import java.util.Map.Entry;
 import org.eclipse.emf.ecore.EObject;
 
 import com.archimatetool.canvas.model.ICanvasModel;
+import com.archimatetool.editor.model.IArchiveManager;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IConnectable;
 import com.archimatetool.model.IDiagramModel;
@@ -20,6 +22,7 @@ import com.archimatetool.model.IDiagramModelArchimateConnection;
 import com.archimatetool.model.IDiagramModelArchimateObject;
 import com.archimatetool.model.IDiagramModelConnection;
 import com.archimatetool.model.IDiagramModelContainer;
+import com.archimatetool.model.IDiagramModelImageProvider;
 import com.archimatetool.model.IDiagramModelObject;
 import com.archimatetool.model.ISketchModel;
 
@@ -37,7 +40,7 @@ class ViewImporter extends AbstractImporter {
         super(importer);
     }
 
-    IDiagramModel importView(IDiagramModel importedView) throws PorticoException {
+    IDiagramModel importView(IDiagramModel importedView) throws PorticoException, IOException {
         this.importedView = importedView;
         
         // Do we have this View given its ID?
@@ -86,7 +89,7 @@ class ViewImporter extends AbstractImporter {
     /**
      * Create and sdd new child diagram objects
      */
-    private void createChildObjects(IDiagramModelContainer importedParent, IDiagramModelContainer targetParent) throws PorticoException {
+    private void createChildObjects(IDiagramModelContainer importedParent, IDiagramModelContainer targetParent) throws PorticoException, IOException {
         for(IDiagramModelObject importedObject : importedParent.getChildren()) {
             IDiagramModelObject targetObject = cloneObject(importedObject);
             targetParent.getChildren().add(targetObject);
@@ -96,7 +99,12 @@ class ViewImporter extends AbstractImporter {
                 setArchimateConcept((IDiagramModelArchimateObject)importedObject, (IDiagramModelArchimateObject)targetObject);
             }
             
-            // Recuse child objects
+            // Image
+            if(importedObject instanceof IDiagramModelImageProvider) {
+                importImageBytes((IDiagramModelImageProvider)importedObject, (IDiagramModelImageProvider)targetObject);
+            }
+            
+            // Recurse child objects
             if(importedObject instanceof IDiagramModelContainer) {
                 createChildObjects((IDiagramModelContainer)importedObject, (IDiagramModelContainer)targetObject);
             }
@@ -154,5 +162,22 @@ class ViewImporter extends AbstractImporter {
         }
         
         targetComponent.setArchimateConcept(targetConcept);
+    }
+    
+    /**
+     * Import an image bytes from imported model to target model
+     */
+    private void importImageBytes(IDiagramModelImageProvider importedObject, IDiagramModelImageProvider targetObject) throws IOException {
+        String importedImagePath = importedObject.getImagePath();
+        
+        if(importedImagePath != null) {
+            IArchiveManager importedArchiveManager = (IArchiveManager)getImportedModel().getAdapter(IArchiveManager.class);
+            IArchiveManager targetArchiveManager = (IArchiveManager)getTargetModel().getAdapter(IArchiveManager.class);
+            
+            byte[] bytes = importedArchiveManager.getBytesFromEntry(importedImagePath);
+            if(bytes != null) {
+                targetArchiveManager.addByteContentEntry(importedImagePath, bytes);
+            }
+        }
     }
 }
