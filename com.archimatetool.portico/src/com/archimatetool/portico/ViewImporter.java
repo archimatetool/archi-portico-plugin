@@ -141,12 +141,13 @@ class ViewImporter extends AbstractImporter {
                 throw new PorticoException("Could not find target component: " + importedConnection.getTarget().getId()); //$NON-NLS-1$
             }
             
-            targetConnection.connect(targetSource, targetTarget);
-            
             // Archimate connection so set Archimate concept
+            // Do this first before connecting source and target!
             if(targetConnection instanceof IDiagramModelArchimateConnection) {
                 setArchimateConcept((IDiagramModelArchimateConnection)importedConnection, (IDiagramModelArchimateConnection)targetConnection);
             }
+
+            targetConnection.connect(targetSource, targetTarget);
         }
     }
     
