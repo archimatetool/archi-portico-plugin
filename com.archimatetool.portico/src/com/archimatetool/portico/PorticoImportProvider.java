@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -18,7 +17,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
-import com.archimatetool.editor.model.IEditorModelManager;
 import com.archimatetool.editor.model.ISelectedModelImporter;
 import com.archimatetool.editor.model.ModelChecker;
 import com.archimatetool.editor.ui.components.ExtendedWizardDialog;
@@ -37,20 +35,6 @@ public class PorticoImportProvider implements ISelectedModelImporter {
 
     @Override
     public void doImport(IArchimateModel targetModel) throws IOException {
-        if(IEditorModelManager.INSTANCE.isModelDirty(targetModel)) {
-            boolean doSave = MessageDialog.openConfirm(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-                    Messages.PorticoImportProvider_0,
-                    Messages.PorticoImportProvider_1);
-                    
-            if(doSave) {
-                doSave = IEditorModelManager.INSTANCE.saveModel(targetModel);
-            }
-            
-            if(!doSave) {
-                return;
-            }
-        }
-        
         ImportModelWizard wizard = new ImportModelWizard();
         
         WizardDialog dialog = new ExtendedWizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
@@ -59,9 +43,9 @@ public class PorticoImportProvider implements ISelectedModelImporter {
 
             @Override
             protected void createButtonsForButtonBar(Composite parent) {
-                super.createButtonsForButtonBar(parent); // Change "Finish" to "Save"
+                super.createButtonsForButtonBar(parent); // Change "Finish" to "Import"
                 Button b = getButton(IDialogConstants.FINISH_ID);
-                b.setText(Messages.PorticoImportProvider_2);
+                b.setText(Messages.PorticoImportProvider_0);
             }
         };
         

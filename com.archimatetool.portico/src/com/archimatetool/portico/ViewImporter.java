@@ -6,15 +6,22 @@
 package com.archimatetool.portico;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.gef.commands.Command;
 
 import com.archimatetool.canvas.model.ICanvasModel;
+import com.archimatetool.canvas.model.ICanvasPackage;
+import com.archimatetool.editor.diagram.commands.ConnectionRouterTypeCommand;
 import com.archimatetool.editor.model.IArchiveManager;
+import com.archimatetool.editor.model.commands.EObjectFeatureCommand;
 import com.archimatetool.model.IArchimateConcept;
+import com.archimatetool.model.IArchimatePackage;
 import com.archimatetool.model.IConnectable;
 import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateComponent;
@@ -49,15 +56,12 @@ class ViewImporter extends AbstractImporter {
         // We don't have it, so create a new view
         if(targetView == null) {
             targetView = cloneObject(importedView);
-            createChildObjects(importedView, targetView);
-            createConnections();
+            createChildren();
         }
         // We have it so update it
         else if(doReplaceWithSource()) {
             updateView();
-            targetView.getChildren().clear(); // clear all child objects
-            createChildObjects(importedView, targetView);
-            createConnections();
+            createChildren();
         }
         
         // Add to parent folder (we need to do this in any case since it may have moved)
@@ -70,29 +74,45 @@ class ViewImporter extends AbstractImporter {
         super.updateObject(importedView, targetView);
         
         // Connection Router
-        targetView.setConnectionRouterType(importedView.getConnectionRouterType());
+        addCommand(new ConnectionRouterTypeCommand(targetView, importedView.getConnectionRouterType()));
         
         // Sketch View
         if(targetView instanceof ISketchModel) {
             // Background
-            ((ISketchModel)targetView).setBackground(((ISketchModel)importedView).getBackground());
+            addCommand(new EObjectFeatureCommand(null, targetView, IArchimatePackage.Literals.SKETCH_MODEL__BACKGROUND,
+                    ((ISketchModel)importedView).getBackground()));
         }
         
         // Canvas View
         if(targetView instanceof ICanvasModel) {
-            // Hint stuff
-            ((ICanvasModel)targetView).setHintTitle(((ICanvasModel)importedView).getHintTitle());
-            ((ICanvasModel)targetView).setHintContent(((ICanvasModel)importedView).getHintContent());
+            // Hint title
+            addCommand(new EObjectFeatureCommand(null, targetView, ICanvasPackage.Literals.HINT_PROVIDER__HINT_TITLE,
+                    ((ICanvasModel)importedView).getHintTitle()));
+            
+            // Hint content
+            addCommand(new EObjectFeatureCommand(null, targetView, ICanvasPackage.Literals.HINT_PROVIDER__HINT_CONTENT,
+                    ((ICanvasModel)importedView).getHintContent()));
         }
     }
     
     /**
-     * Create and sdd new child diagram objects
+     * Create and sdd new child diagram objects and connections
      */
-    private void createChildObjects(IDiagramModelContainer importedParent, IDiagramModelContainer targetParent) throws PorticoException, IOException {
-        for(IDiagramModelObject importedObject : importedParent.getChildren()) {
+    private void createChildren() throws PorticoException, IOException {
+        // Create all child objects now
+        List<IDiagramModelObject> newChildren = createChildObjects(importedView.getChildren(), new ArrayList<>());
+        
+        // Add these to a Command so they can be undone
+        addCommand(new SetViewChildrenCommand(targetView, newChildren));
+        
+        // Create connections. These don't have have to be put on the Command stack as they will be removed
+        createConnections();
+    }
+    
+    private List<IDiagramModelObject> createChildObjects(List<IDiagramModelObject> importedChildren, List<IDiagramModelObject> targetChildren) throws PorticoException, IOException {
+        for(IDiagramModelObject importedObject : importedChildren) {
             IDiagramModelObject targetObject = cloneObject(importedObject);
-            targetParent.getChildren().add(targetObject);
+            targetChildren.add(targetObject);
             
             // Archimate object so set Archimate concept
             if(targetObject instanceof IDiagramModelArchimateObject) {
@@ -106,11 +126,13 @@ class ViewImporter extends AbstractImporter {
             
             // Recurse child objects
             if(importedObject instanceof IDiagramModelContainer) {
-                createChildObjects((IDiagramModelContainer)importedObject, (IDiagramModelContainer)targetObject);
+                createChildObjects(((IDiagramModelContainer)importedObject).getChildren(), ((IDiagramModelContainer)targetObject).getChildren());
             }
         }
+        
+        return targetChildren;
     }
-    
+
     /**
      * Create and add new diagram connections
      * Do this in two passes in case there are connection -> connections
@@ -141,8 +163,8 @@ class ViewImporter extends AbstractImporter {
                 throw new PorticoException("Could not find target component: " + importedConnection.getTarget().getId()); //$NON-NLS-1$
             }
             
-            // Archimate connection so set Archimate concept
-            // Do this first before connecting source and target!
+            // It's an Archimate connection so set its Archimate concept
+            // Do this first before connecting source and target otherwise you'll end up with duplicate relationships
             if(targetConnection instanceof IDiagramModelArchimateConnection) {
                 setArchimateConcept((IDiagramModelArchimateConnection)importedConnection, (IDiagramModelArchimateConnection)targetConnection);
             }
@@ -181,4 +203,41 @@ class ViewImporter extends AbstractImporter {
             }
         }
     }
+    
+    // ====================================================================================================
+    // Commands
+    // ====================================================================================================
+
+    private static class SetViewChildrenCommand extends Command {
+        private IDiagramModel view;
+        private List<IDiagramModelObject> oldChildren;
+        private List<IDiagramModelObject> newChildren;
+        
+        private SetViewChildrenCommand(IDiagramModel view, List<IDiagramModelObject> newChildren) {
+            this.view = view;
+            this.newChildren = newChildren;
+            oldChildren = new ArrayList<>(view.getChildren());
+        }
+        
+        @Override
+        public void execute() {
+            view.getChildren().clear();
+            view.getChildren().addAll(newChildren);
+        }
+        
+        @Override
+        public void undo() {
+            view.getChildren().clear();
+            view.getChildren().addAll(oldChildren);
+        }
+        
+        @Override
+        public void dispose() {
+            view = null;
+            oldChildren = null;
+            newChildren = null;
+        }
+    }
+    
+
 }

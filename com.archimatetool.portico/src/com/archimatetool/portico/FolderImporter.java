@@ -5,6 +5,8 @@
  */
 package com.archimatetool.portico;
 
+import org.eclipse.gef.commands.Command;
+
 import com.archimatetool.model.FolderType;
 import com.archimatetool.model.IFolder;
 
@@ -60,9 +62,9 @@ class FolderImporter extends AbstractImporter {
         if(importedParentFolder.getType() == FolderType.USER) {
             // Do we have this matching parent folder?
             IFolder targetParentFolder = findObjectInTargetModel(importedParentFolder);
-            // Yes, add the object to it
+            // Yes, add the sub-folder to it
             if(targetParentFolder != null) {
-                targetParentFolder.getFolders().add(targetFolder);
+                addCommand(new AddFolderCommand(targetParentFolder, targetFolder));
             }
             // No
             else {
@@ -72,7 +74,56 @@ class FolderImporter extends AbstractImporter {
         // Parent is a top level folder
         else {
             IFolder targetParentFolder = getTargetModel().getFolder(importedParentFolder.getType());
-            targetParentFolder.getFolders().add(targetFolder);
+            addCommand(new AddFolderCommand(targetParentFolder, targetFolder));
+        }
+    }
+    
+    
+    // ====================================================================================================
+    // Commands
+    // ====================================================================================================
+
+    private static class AddFolderCommand extends Command {
+        private IFolder parent;
+        private IFolder subFolder;
+        IFolder oldParent;
+        int oldPosition;
+
+        private AddFolderCommand(IFolder parent, IFolder subFolder) {
+            this.parent = parent;
+            this.subFolder = subFolder;
+            oldParent = (IFolder)subFolder.eContainer();
+        }
+        
+        @Override
+        public boolean canExecute() {
+            return !parent.getFolders().contains(subFolder);
+        }
+        
+        @Override
+        public void undo() {
+            if(oldParent != null) {
+                oldParent.getFolders().add(oldPosition, subFolder);
+            }
+            else {
+                parent.getFolders().remove(subFolder);
+            }
+        }
+
+        @Override
+        public void execute() {
+            if(oldParent != null) {
+                oldPosition = oldParent.getFolders().indexOf(subFolder);
+            }
+            
+            parent.getFolders().add(subFolder);
+        }
+        
+        @Override
+        public void dispose() {
+            parent = null;
+            subFolder = null;
+            oldParent = null;
         }
     }
 }

@@ -6,10 +6,13 @@
 package com.archimatetool.portico;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.gef.commands.Command;
 
+import com.archimatetool.editor.ui.services.EditorManager;
 import com.archimatetool.model.FolderType;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateModelObject;
+import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IFolder;
 import com.archimatetool.model.IIdentifier;
 
@@ -50,13 +53,17 @@ abstract class AbstractImporter {
         return importer.targetModel;
     }
     
+    protected void addCommand(Command cmd) {
+        importer.addCommand(cmd);
+    }
+    
     /**
      * Add target object to parent folder
      * @param importedObject The imported object
      * @param targetObject The target object
      * @throws PorticoException
      */
-    protected void addToParentFolder(EObject importedObject, EObject targetObject) throws PorticoException {
+    protected void addToParentFolder(IArchimateModelObject importedObject, IArchimateModelObject targetObject) throws PorticoException {
         // Imported object's parent folder
         IFolder importedParentFolder = (IFolder)importedObject.eContainer();
 
@@ -66,7 +73,7 @@ abstract class AbstractImporter {
             IFolder targetParentFolder = importer.findObjectInTargetModel(importedParentFolder);
             // Yes, add the object to it
             if(targetParentFolder != null) {
-                targetParentFolder.getElements().add(targetObject);
+                addCommand(new AddObjectCommand(targetParentFolder, targetObject));
             }
             // No
             else {
@@ -76,7 +83,60 @@ abstract class AbstractImporter {
         // Parent is a top level folder
         else {
             IFolder targetParentFolder = importer.targetModel.getDefaultFolderForObject(targetObject);
-            targetParentFolder.getElements().add(targetObject);
+            addCommand(new AddObjectCommand(targetParentFolder, targetObject));
+        }
+    }
+    
+    // ====================================================================================================
+    // Commands
+    // ====================================================================================================
+
+    private static class AddObjectCommand extends Command {
+        private IFolder parent;
+        private EObject object;
+        IFolder oldParent;
+        int oldPosition;
+
+        private AddObjectCommand(IFolder parent, IArchimateModelObject object) {
+            this.parent = parent;
+            this.object = object;
+            oldParent = (IFolder)object.eContainer();
+        }
+        
+        @Override
+        public boolean canExecute() {
+            return !parent.getElements().contains(object);
+        }
+        
+        @Override
+        public void undo() {
+            if(oldParent != null) {
+                oldParent.getElements().add(oldPosition, object);
+            }
+            else {
+                // If it's an editor, close it first!
+                if(object instanceof IDiagramModel) {
+                    EditorManager.closeDiagramEditor((IDiagramModel)object);
+                }
+
+                parent.getElements().remove(object);
+            }
+        }
+
+        @Override
+        public void execute() {
+            if(oldParent != null) {
+                oldPosition = oldParent.getElements().indexOf(object);
+            }
+            
+            parent.getElements().add(object);
+        }
+        
+        @Override
+        public void dispose() {
+            parent = null;
+            object = null;
+            oldParent = null;
         }
     }
 }

@@ -15,3 +15,4 @@ Bundle-Activator: com.archimatetool.portico.PorticoPlugin
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: com.archimatetool.portico
 Bundle-ClassPath: .
+Export-Package: com.archimatetool.portico

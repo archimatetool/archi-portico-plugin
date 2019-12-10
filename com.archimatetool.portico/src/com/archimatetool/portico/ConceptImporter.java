@@ -5,6 +5,8 @@
  */
 package com.archimatetool.portico;
 
+import org.eclipse.gef.commands.Command;
+
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateRelationship;
 
@@ -51,12 +53,53 @@ class ConceptImporter extends AbstractImporter {
         if(source == null) {
             source = importConcept(importedRelationship.getSource());
         }
-        targetRelationship.setSource(source);
         
         IArchimateConcept target = findObjectInTargetModel(importedRelationship.getTarget());
         if(target == null) {
             target = importConcept(importedRelationship.getTarget());
         }
-        targetRelationship.setTarget(target);
+        
+        addCommand(new SetRelationshipEndsCommand(targetRelationship, source, target));
+    }
+    
+    // ====================================================================================================
+    // Commands
+    // ====================================================================================================
+
+    private static class SetRelationshipEndsCommand extends Command {
+        private IArchimateRelationship relationship;
+        private IArchimateConcept sourceConcept;
+        private IArchimateConcept targetConcept;
+        private IArchimateConcept oldSourceConcept;
+        private IArchimateConcept oldTargetConcept;
+        
+        private SetRelationshipEndsCommand(IArchimateRelationship relationship, IArchimateConcept sourceConcept, IArchimateConcept targetConcept) {
+            this.relationship = relationship;
+            this.sourceConcept = sourceConcept;
+            this.targetConcept = targetConcept;
+            oldSourceConcept = relationship.getSource();
+            oldTargetConcept = relationship.getTarget();
+        }
+
+        @Override
+        public void execute() {
+            relationship.setSource(sourceConcept);
+            relationship.setTarget(targetConcept);
+        }
+        
+        @Override
+        public void undo() {
+            relationship.setSource(oldSourceConcept);
+            relationship.setTarget(oldTargetConcept);
+        }
+        
+        @Override
+        public void dispose() {
+            relationship = null;
+            sourceConcept = null;
+            targetConcept = null;
+            oldSourceConcept = null;
+            oldTargetConcept = null;
+        }
     }
 }
