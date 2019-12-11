@@ -14,7 +14,7 @@ public class AllTests {
     public static junit.framework.Test suite() {
 		TestSuite suite = new TestSuite("com.archimatetool.portico");
 
-        suite.addTest(ArchiModelImporterTests.suite());
+        suite.addTest(ModelImporterTests.suite());
 		
         return suite;
 	}

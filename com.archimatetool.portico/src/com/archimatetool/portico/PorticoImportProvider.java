@@ -57,12 +57,12 @@ public class PorticoImportProvider implements ISelectedModelImporter {
                 return;
             }
             
-            ModelImporter importer = new ModelImporter(replaceWithSource);
+            ModelImporter importer = new ModelImporter();
             Exception[] ex = new Exception[1];
 
             BusyIndicator.showWhile(Display.getCurrent(), () -> {
                 try {
-                    importer.doImport(importedFile, targetModel);
+                    importer.doImport(importedFile, targetModel, replaceWithSource);
                 }
                 catch(Exception ex1) {
                     ex[0] = ex1;

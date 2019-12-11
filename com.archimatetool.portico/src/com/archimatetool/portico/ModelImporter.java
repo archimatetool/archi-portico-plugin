@@ -69,13 +69,13 @@ public class ModelImporter {
     // Undo/Redo commands
     private NonNotifyingCompoundCommand compoundCommand;
     
-    public ModelImporter(boolean replaceWithSource) {
-        this.replaceWithSource = replaceWithSource;
+    public ModelImporter() {
     }
 
-    public void doImport(File importedFile, IArchimateModel targetModel) throws IOException, PorticoException {
-        importedModel = loadModel(importedFile);
+    public void doImport(File importedFile, IArchimateModel targetModel, boolean replaceWithSource) throws IOException, PorticoException {
         this.targetModel = targetModel;
+        this.replaceWithSource = replaceWithSource;
+        importedModel = loadModel(importedFile);
         
         objectCache = createObjectIDCache();
         

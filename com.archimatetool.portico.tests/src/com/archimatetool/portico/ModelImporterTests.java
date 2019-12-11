@@ -15,10 +15,10 @@ import junit.framework.JUnit4TestAdapter;
  * 
  * @author Phillip Beauvoir
  */
-public class ArchiModelImporterTests {
+public class ModelImporterTests {
     
     public static junit.framework.Test suite() {
-        return new JUnit4TestAdapter(ArchiModelImporterTests.class);
+        return new JUnit4TestAdapter(ModelImporterTests.class);
     }
     
     @Test
