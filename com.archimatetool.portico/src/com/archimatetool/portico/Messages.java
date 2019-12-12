@@ -26,13 +26,14 @@ public class Messages extends NLS {
 
     public static String ImportModelWizard_0;
 
+    public static String ImportProvider_0;
+
     public static String ModelImporter_0;
 
     public static String ModelImporter_1;
 
     public static String ModelImporter_2;
 
-    public static String PorticoImportProvider_0;
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

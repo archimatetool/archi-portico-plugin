@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: JUnit Tests for Portico Plug-in
+Bundle-Name: JUnit Tests for Archi Model Importer
 Bundle-SymbolicName: com.archimatetool.portico.tests
 Bundle-Version: 1.0.0
 Fragment-Host: com.archimatetool.portico

@@ -21,7 +21,7 @@ implements IPreferenceConstants {
 
     @Override
     public void initializeDefaultPreferences() {
-        IPreferenceStore store = PorticoPlugin.INSTANCE.getPreferenceStore();
+        IPreferenceStore store = ImporterPlugin.INSTANCE.getPreferenceStore();
         
         store.setDefault(IMPORTER_PREFS_UPDATE, false);
         store.setDefault(IMPORTER_PREFS_UPDATE_ROOT, false);

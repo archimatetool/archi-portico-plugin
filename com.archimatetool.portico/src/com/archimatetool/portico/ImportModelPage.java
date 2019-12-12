@@ -73,7 +73,7 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
         fFileTextField.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         
         // Get last file used
-        String lastFileName = PorticoPlugin.INSTANCE.getPreferenceStore().getString(IMPORTER_PREFS_LAST_FILE);
+        String lastFileName = ImporterPlugin.INSTANCE.getPreferenceStore().getString(IMPORTER_PREFS_LAST_FILE);
         File lastFile = new File(lastFileName);
         
         if(lastFile.exists() && lastFile.isFile()) {
@@ -108,7 +108,7 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
         gd.horizontalSpan = 2;
         
         fUpdateButton = new Button(optionsGroup, SWT.CHECK);
-        fUpdateButton.setSelection(PorticoPlugin.INSTANCE.getPreferenceStore().getBoolean(IMPORTER_PREFS_UPDATE));
+        fUpdateButton.setSelection(ImporterPlugin.INSTANCE.getPreferenceStore().getBoolean(IMPORTER_PREFS_UPDATE));
         fUpdateButton.setText(Messages.ImportModelPage_6);
         fUpdateButton.setLayoutData(gd);
         fUpdateButton.addSelectionListener(new SelectionAdapter() {
@@ -119,7 +119,7 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
         });
         
         fUpdateRootButton = new Button(optionsGroup, SWT.CHECK);
-        fUpdateRootButton.setSelection(PorticoPlugin.INSTANCE.getPreferenceStore().getBoolean(IMPORTER_PREFS_UPDATE_ROOT));
+        fUpdateRootButton.setSelection(ImporterPlugin.INSTANCE.getPreferenceStore().getBoolean(IMPORTER_PREFS_UPDATE_ROOT));
         fUpdateRootButton.setText(Messages.ImportModelPage_8);
         fUpdateRootButton.setLayoutData(gd);
         
@@ -172,7 +172,7 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
     }
 
     void storePreferences() {
-        IPreferenceStore store = PorticoPlugin.INSTANCE.getPreferenceStore();
+        IPreferenceStore store = ImporterPlugin.INSTANCE.getPreferenceStore();
         store.setValue(IMPORTER_PREFS_LAST_FILE, getFileName());
         store.setValue(IMPORTER_PREFS_UPDATE, doUpdate());
         store.setValue(IMPORTER_PREFS_UPDATE_ROOT, doUpdateRoot());

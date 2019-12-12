@@ -28,9 +28,9 @@ import com.archimatetool.model.IArchimateModel;
  * 
  * @author Phillip Beauvoir
  */
-public class PorticoImportProvider implements ISelectedModelImporter {
+public class ImportProvider implements ISelectedModelImporter {
 
-    public PorticoImportProvider() {
+    public ImportProvider() {
     }
 
     @Override
@@ -45,7 +45,7 @@ public class PorticoImportProvider implements ISelectedModelImporter {
             protected void createButtonsForButtonBar(Composite parent) {
                 super.createButtonsForButtonBar(parent); // Change "Finish" to "Import"
                 Button b = getButton(IDialogConstants.FINISH_ID);
-                b.setText(Messages.PorticoImportProvider_0);
+                b.setText(Messages.ImportProvider_0);
             }
         };
         

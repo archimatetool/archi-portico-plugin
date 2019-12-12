@@ -4,7 +4,7 @@
    <extension
          point="com.archimatetool.editor.importHandler">
       <importHandler2
-            class="com.archimatetool.portico.PorticoImportProvider"
+            class="com.archimatetool.portico.ImportProvider"
             id="com.archimatetool.portico.importHandler"
             label="Another Model Into Selected Model...">
       </importHandler2>

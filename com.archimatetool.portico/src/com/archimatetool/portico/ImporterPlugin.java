@@ -10,18 +10,18 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class PorticoPlugin extends AbstractUIPlugin {
+public class ImporterPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.archimatetool.portico"; //$NON-NLS-1$
 
 	// The shared instance
-	public static PorticoPlugin INSTANCE;
+	public static ImporterPlugin INSTANCE;
 	
 	/**
 	 * The constructor
 	 */
-	public PorticoPlugin() {
+	public ImporterPlugin() {
 	    INSTANCE = this;
 	}
 }

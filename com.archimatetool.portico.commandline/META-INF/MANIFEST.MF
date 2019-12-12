@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Archi Portico Command Line
+Bundle-Name: Archi Model Importer Command Line
 Bundle-SymbolicName: com.archimatetool.portico.commandline;singleton:=true
 Bundle-Localization: plugin
 Bundle-Version: 1.0.0.qualifier
