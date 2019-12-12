@@ -37,10 +37,10 @@ public class ModelImporterTests {
     public void importModel_Initialised() {
         ModelImporter importer = new ModelImporter();
         
-        assertFalse(importer.doUpdate);
-        assertFalse(importer.doUpdateRoot);
-        assertNull(importer.importedModel);
-        assertNull(importer.targetModel);
+        assertFalse(importer.doUpdate());
+        assertFalse(importer.doUpdateRoot());
+        assertNull(importer.getImportedModel());
+        assertNull(importer.getTargetModel());
     }
 
     @Test

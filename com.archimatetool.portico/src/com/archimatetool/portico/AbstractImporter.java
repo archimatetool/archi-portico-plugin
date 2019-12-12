@@ -30,11 +30,11 @@ abstract class AbstractImporter {
     }
     
     protected boolean doUpdate() {
-        return importer.doUpdate;
+        return importer.doUpdate();
     }
     
     protected boolean doUpdateRoot() {
-        return importer.doUpdateRoot;
+        return importer.doUpdateRoot();
     }
     
     protected <T extends IIdentifier> T findObjectInTargetModel(T eObject) throws ImportException {
@@ -50,11 +50,11 @@ abstract class AbstractImporter {
     }
     
     protected IArchimateModel getImportedModel() {
-        return importer.importedModel;
+        return importer.getImportedModel();
     }
 
     protected IArchimateModel getTargetModel() {
-        return importer.targetModel;
+        return importer.getTargetModel();
     }
     
     protected void addCommand(Command cmd) {
@@ -86,7 +86,7 @@ abstract class AbstractImporter {
         }
         // Parent is a top level folder
         else {
-            IFolder targetParentFolder = importer.targetModel.getDefaultFolderForObject(targetObject);
+            IFolder targetParentFolder = getTargetModel().getDefaultFolderForObject(targetObject);
             addCommand(new AddObjectCommand(targetParentFolder, targetObject));
         }
     }

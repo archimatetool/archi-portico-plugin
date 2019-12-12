@@ -58,11 +58,11 @@ import com.archimatetool.model.util.ArchimateResourceFactory;
  */
 public class ModelImporter {
     
-    boolean doUpdate; // If true update target objects with source objects
-    boolean doUpdateRoot; // If true update model name, purpose, documentation and top level folders with source
+    private boolean doUpdate; // If true update target objects with source objects
+    private boolean doUpdateRoot; // If true update model name, purpose, documentation and top level folders with source
     
-    IArchimateModel importedModel;
-    IArchimateModel targetModel;
+    private IArchimateModel importedModel;
+    private IArchimateModel targetModel;
     
     // Keep a cache of objects in the target model for speed
     private Map<String, IIdentifier> objectCache;
@@ -120,6 +120,14 @@ public class ModelImporter {
         objectCache.clear();
     }
     
+    public IArchimateModel getImportedModel() {
+        return importedModel;
+    }
+    
+    public IArchimateModel getTargetModel() {
+        return targetModel;
+    }
+    
     /**
      * If true update/replace target objects with source objects - sub-folders, concepts, folder structure, views
      */
@@ -127,11 +135,19 @@ public class ModelImporter {
         this.doUpdate = doUpdate;
     }
     
+    public boolean doUpdate() {
+        return doUpdate;
+    }
+    
     /**
      * If true update/replace model and top level folders' name, purpose, documentation and properties with source
      */
     public void setUpdateRoot(boolean doUpdateRoot) {
         this.doUpdateRoot = doUpdateRoot;
+    }
+    
+    public boolean doUpdateRoot() {
+        return doUpdateRoot;
     }
     
     /**
