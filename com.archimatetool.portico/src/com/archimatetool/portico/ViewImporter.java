@@ -47,7 +47,7 @@ class ViewImporter extends AbstractImporter {
         super(importer);
     }
 
-    IDiagramModel importView(IDiagramModel importedView) throws PorticoException, IOException {
+    IDiagramModel importView(IDiagramModel importedView) throws ImportException, IOException {
         this.importedView = importedView;
         
         // Do we have this View given its ID?
@@ -97,7 +97,7 @@ class ViewImporter extends AbstractImporter {
     /**
      * Create and sdd new child diagram objects and connections
      */
-    private void createChildren() throws PorticoException, IOException {
+    private void createChildren() throws ImportException, IOException {
         // Create all child objects now
         List<IDiagramModelObject> newChildren = createChildObjects(importedView.getChildren(), new ArrayList<>());
         
@@ -108,7 +108,7 @@ class ViewImporter extends AbstractImporter {
         createConnections();
     }
     
-    private List<IDiagramModelObject> createChildObjects(List<IDiagramModelObject> importedChildren, List<IDiagramModelObject> targetChildren) throws PorticoException, IOException {
+    private List<IDiagramModelObject> createChildObjects(List<IDiagramModelObject> importedChildren, List<IDiagramModelObject> targetChildren) throws ImportException, IOException {
         for(IDiagramModelObject importedObject : importedChildren) {
             IDiagramModelObject targetObject = cloneObject(importedObject);
             targetChildren.add(targetObject);
@@ -136,7 +136,7 @@ class ViewImporter extends AbstractImporter {
      * Create and add new diagram connections
      * Do this in two passes in case there are connection -> connections
      */
-    private void createConnections() throws PorticoException {
+    private void createConnections() throws ImportException {
         Hashtable<IDiagramModelConnection, IDiagramModelConnection> connections = new Hashtable<>();
         
         // Create new connections. They will be cached in ModelImporter
@@ -154,12 +154,12 @@ class ViewImporter extends AbstractImporter {
             
             IConnectable targetSource = findObjectInTargetModel(importedConnection.getSource());
             if(targetSource == null) {
-                throw new PorticoException("Could not find target component: " + importedConnection.getSource().getId()); //$NON-NLS-1$
+                throw new ImportException("Could not find target component: " + importedConnection.getSource().getId()); //$NON-NLS-1$
             }
             
             IConnectable targetTarget = findObjectInTargetModel(importedConnection.getTarget());
             if(targetTarget == null) {
-                throw new PorticoException("Could not find target component: " + importedConnection.getTarget().getId()); //$NON-NLS-1$
+                throw new ImportException("Could not find target component: " + importedConnection.getTarget().getId()); //$NON-NLS-1$
             }
             
             // It's an Archimate connection so set its Archimate concept
@@ -175,12 +175,12 @@ class ViewImporter extends AbstractImporter {
     /**
      * Set the Archimate concept in the IDiagramModelArchimateComponent
      */
-    private void setArchimateConcept(IDiagramModelArchimateComponent importedComponent, IDiagramModelArchimateComponent targetComponent) throws PorticoException {
+    private void setArchimateConcept(IDiagramModelArchimateComponent importedComponent, IDiagramModelArchimateComponent targetComponent) throws ImportException {
         // Set ArchiMate Concept
         IArchimateConcept targetConcept = findObjectInTargetModel(importedComponent.getArchimateConcept());
         
         if(targetConcept == null) {
-            throw new PorticoException("Could not find concept in target: " + importedComponent.getId()); //$NON-NLS-1$
+            throw new ImportException("Could not find concept in target: " + importedComponent.getId()); //$NON-NLS-1$
         }
         
         targetComponent.setArchimateConcept(targetConcept);

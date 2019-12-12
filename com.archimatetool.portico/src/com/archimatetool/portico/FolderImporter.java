@@ -22,7 +22,7 @@ class FolderImporter extends AbstractImporter {
         super(importer);
     }
 
-    IFolder importFolder(IFolder importedFolder) throws PorticoException {
+    IFolder importFolder(IFolder importedFolder) throws ImportException {
         boolean createdNewFolder = false;
         
         // Do we have this folder given its ID?
@@ -59,9 +59,9 @@ class FolderImporter extends AbstractImporter {
      * Add target object to parent folder
      * @param importedObject The imported object
      * @param targetObject The target object
-     * @throws PorticoException
+     * @throws ImportException
      */
-    private void addToParentFolder(IFolder importedFolder, IFolder targetFolder) throws PorticoException {
+    private void addToParentFolder(IFolder importedFolder, IFolder targetFolder) throws ImportException {
         // Imported object's parent folder
         IFolder importedParentFolder = (IFolder)importedFolder.eContainer();
 
@@ -75,7 +75,7 @@ class FolderImporter extends AbstractImporter {
             }
             // No
             else {
-                throw new PorticoException("Target parent folder was null"); //$NON-NLS-1$
+                throw new ImportException("Target parent folder was null"); //$NON-NLS-1$
             }
         }
         // Parent is a top level folder

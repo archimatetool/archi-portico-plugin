@@ -9,33 +9,33 @@ package com.archimatetool.portico;
 
 
 /**
- * Portico Exception
+ * Importer Exception
  * 
  * @author Phillip Beauvoir
  */
-public class PorticoException extends Exception {
+public class ImportException extends Exception {
     
     /**
-     * Constructs a {@code PorticoException} with {@code null}
+     * Constructs a {@code ImportException} with {@code null}
      * as its error detail message.
      */
-    public PorticoException() {
+    public ImportException() {
         super();
     }
 
     /**
-     * Constructs a {@code PorticoException} with the specified detail message.
+     * Constructs a {@code ImportException} with the specified detail message.
      *
      * @param message
      *        The detail message (which is saved for later retrieval
      *        by the {@link #getMessage()} method)
      */
-    public PorticoException(String message) {
+    public ImportException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a {@code PorticoException} with the specified detail message
+     * Constructs a {@code ImportException} with the specified detail message
      * and cause.
      *
      * @param message
@@ -48,12 +48,12 @@ public class PorticoException extends Exception {
      *        and indicates that the cause is nonexistent or unknown.)
      *
      */
-    public PorticoException(String message, Throwable cause) {
+    public ImportException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Constructs a {@code PorticoException} with the specified cause and a
+     * Constructs a {@code ImportException} with the specified cause and a
      * detail message of {@code (cause==null ? null : cause.toString())}
      * (which typically contains the class and detail message of {@code cause}).
      * This constructor is useful for exceptions that are little more
@@ -65,7 +65,7 @@ public class PorticoException extends Exception {
      *        and indicates that the cause is nonexistent or unknown.)
      *
      */
-    public PorticoException(Throwable cause) {
+    public ImportException(Throwable cause) {
         super(cause);
     }
 }

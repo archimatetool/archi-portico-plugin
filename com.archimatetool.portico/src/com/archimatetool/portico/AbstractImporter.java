@@ -37,7 +37,7 @@ abstract class AbstractImporter {
         return importer.doUpdateRoot;
     }
     
-    protected <T extends IIdentifier> T findObjectInTargetModel(T eObject) throws PorticoException {
+    protected <T extends IIdentifier> T findObjectInTargetModel(T eObject) throws ImportException {
         return importer.findObjectInTargetModel(eObject);
     }
     
@@ -65,9 +65,9 @@ abstract class AbstractImporter {
      * Add target object to parent folder
      * @param importedObject The imported object
      * @param targetObject The target object
-     * @throws PorticoException
+     * @throws ImportException
      */
-    protected void addToParentFolder(IArchimateModelObject importedObject, IArchimateModelObject targetObject) throws PorticoException {
+    protected void addToParentFolder(IArchimateModelObject importedObject, IArchimateModelObject targetObject) throws ImportException {
         // Imported object's parent folder
         IFolder importedParentFolder = (IFolder)importedObject.eContainer();
 
@@ -81,7 +81,7 @@ abstract class AbstractImporter {
             }
             // No
             else {
-                throw new PorticoException("Target parent folder was null"); //$NON-NLS-1$
+                throw new ImportException("Target parent folder was null"); //$NON-NLS-1$
             }
         }
         // Parent is a top level folder

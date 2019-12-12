@@ -22,7 +22,7 @@ class ConceptImporter extends AbstractImporter {
         super(importer);
     }
     
-    IArchimateConcept importConcept(IArchimateConcept importedConcept) throws PorticoException {
+    IArchimateConcept importConcept(IArchimateConcept importedConcept) throws ImportException {
         boolean createdNewConcept = false;
         
         // Do we have this concept given its ID?
@@ -50,7 +50,7 @@ class ConceptImporter extends AbstractImporter {
         return targetConcept;
     }
     
-    private void setRelationshipEnds(IArchimateRelationship importedRelationship, IArchimateRelationship targetRelationship) throws PorticoException {
+    private void setRelationshipEnds(IArchimateRelationship importedRelationship, IArchimateRelationship targetRelationship) throws ImportException {
         IArchimateConcept source = findObjectInTargetModel(importedRelationship.getSource());
         if(source == null) {
             source = importConcept(importedRelationship.getSource());

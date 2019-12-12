@@ -73,7 +73,7 @@ public class ModelImporter {
     public ModelImporter() {
     }
 
-    public void doImport(File importedFile, IArchimateModel targetModel) throws IOException, PorticoException {
+    public void doImport(File importedFile, IArchimateModel targetModel) throws IOException, ImportException {
         importedModel = loadModel(importedFile);
 
         this.targetModel = targetModel;
@@ -327,7 +327,7 @@ public class ModelImporter {
      * Find an object in the target model based on the eObject's identifier and class
      */
     @SuppressWarnings("unchecked")
-    <T extends IIdentifier> T findObjectInTargetModel(T eObject) throws PorticoException {
+    <T extends IIdentifier> T findObjectInTargetModel(T eObject) throws ImportException {
         EObject foundObject = objectCache.get(eObject.getId());
         
         // Not found
@@ -341,7 +341,7 @@ public class ModelImporter {
         }
         // Not the right class, so that's an error we should report
         else {
-            throw new PorticoException("Found object with same id but different class: " + eObject.getId()); //$NON-NLS-1$
+            throw new ImportException("Found object with same id but different class: " + eObject.getId()); //$NON-NLS-1$
         }
     }
     
