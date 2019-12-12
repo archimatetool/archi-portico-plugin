@@ -57,15 +57,14 @@ class ViewImporter extends AbstractImporter {
         if(targetView == null) {
             targetView = cloneObject(importedView);
             createChildren();
+            addToParentFolder(importedView, targetView);
         }
         // We have it so update it
-        else if(doReplaceWithSource()) {
+        else if(doUpdate()) {
             updateView();
             createChildren();
+            addToParentFolder(importedView, targetView);
         }
-        
-        // Add to parent folder (we need to do this in any case since it may have moved)
-        addToParentFolder(importedView, targetView);
         
         return targetView;
     }

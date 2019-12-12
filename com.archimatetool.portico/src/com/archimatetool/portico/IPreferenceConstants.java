@@ -15,6 +15,7 @@ package com.archimatetool.portico;
  */
 @SuppressWarnings("nls")
 public interface IPreferenceConstants {
-    String PORTICO_PREFS_LAST_FILE = "PorticoLastFile";
-    String PORTICO_PREFS_DO_REPLACE_WITH_SOURCE = "PorticoDoReplaceWithSource";
+    String IMPORTER_PREFS_LAST_FILE = "ImporterLastFile";
+    String IMPORTER_PREFS_UPDATE = "ImporterUpdate";
+    String IMPORTER_PREFS_UPDATE_ROOT = "ImporterUpdateRoot";
 }

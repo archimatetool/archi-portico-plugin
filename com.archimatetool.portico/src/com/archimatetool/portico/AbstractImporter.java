@@ -29,8 +29,12 @@ abstract class AbstractImporter {
         this.importer = importer;
     }
     
-    protected boolean doReplaceWithSource() {
-        return importer.replaceWithSource;
+    protected boolean doUpdate() {
+        return importer.doUpdate;
+    }
+    
+    protected boolean doUpdateRoot() {
+        return importer.doUpdateRoot;
     }
     
     protected <T extends IIdentifier> T findObjectInTargetModel(T eObject) throws PorticoException {

@@ -42,7 +42,8 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
     private static String HELP_ID = "com.archimatetool.help.ImportModelPage"; //$NON-NLS-1$
     
     private Text fFileTextField;
-    private Button fReplaceWithSourceButton;
+    private Button fUpdateButton;
+    private Button fUpdateRootButton;
     
     public ImportModelPage() {
         super("ImportModelPage"); //$NON-NLS-1$
@@ -72,7 +73,7 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
         fFileTextField.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         
         // Get last file used
-        String lastFileName = PorticoPlugin.INSTANCE.getPreferenceStore().getString(PORTICO_PREFS_LAST_FILE);
+        String lastFileName = PorticoPlugin.INSTANCE.getPreferenceStore().getString(IMPORTER_PREFS_LAST_FILE);
         File lastFile = new File(lastFileName);
         
         if(lastFile.exists() && lastFile.isFile()) {
@@ -106,18 +107,42 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.horizontalSpan = 2;
         
-        fReplaceWithSourceButton = new Button(optionsGroup, SWT.CHECK);
-        fReplaceWithSourceButton.setSelection(PorticoPlugin.INSTANCE.getPreferenceStore().getBoolean(PORTICO_PREFS_DO_REPLACE_WITH_SOURCE));
-        fReplaceWithSourceButton.setText(Messages.ImportModelPage_6);
-        fReplaceWithSourceButton.setLayoutData(gd);
+        fUpdateButton = new Button(optionsGroup, SWT.CHECK);
+        fUpdateButton.setSelection(PorticoPlugin.INSTANCE.getPreferenceStore().getBoolean(IMPORTER_PREFS_UPDATE));
+        fUpdateButton.setText(Messages.ImportModelPage_6);
+        fUpdateButton.setLayoutData(gd);
+        fUpdateButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                setButtonState();
+            }
+        });
+        
+        fUpdateRootButton = new Button(optionsGroup, SWT.CHECK);
+        fUpdateRootButton.setSelection(PorticoPlugin.INSTANCE.getPreferenceStore().getBoolean(IMPORTER_PREFS_UPDATE_ROOT));
+        fUpdateRootButton.setText(Messages.ImportModelPage_8);
+        fUpdateRootButton.setLayoutData(gd);
+        
+        setButtonState();
     }
 
     String getFileName() {
         return fFileTextField.getText();
     }
 
-    boolean doReplaceWithSource() {
-        return fReplaceWithSourceButton.getSelection();
+    boolean doUpdate() {
+        return fUpdateButton.getSelection();
+    }
+    
+    boolean doUpdateRoot() {
+        return fUpdateRootButton.getSelection();
+    }
+    
+    private void setButtonState() {
+        fUpdateRootButton.setEnabled(fUpdateButton.getSelection());
+        if(!fUpdateButton.getSelection()) {
+            fUpdateRootButton.setSelection(false);
+        }
     }
     
     private void validateFields() {
@@ -148,7 +173,8 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
 
     void storePreferences() {
         IPreferenceStore store = PorticoPlugin.INSTANCE.getPreferenceStore();
-        store.setValue(PORTICO_PREFS_LAST_FILE, getFileName());
-        store.setValue(PORTICO_PREFS_DO_REPLACE_WITH_SOURCE, doReplaceWithSource());
+        store.setValue(IMPORTER_PREFS_LAST_FILE, getFileName());
+        store.setValue(IMPORTER_PREFS_UPDATE, doUpdate());
+        store.setValue(IMPORTER_PREFS_UPDATE_ROOT, doUpdateRoot());
     }
 }

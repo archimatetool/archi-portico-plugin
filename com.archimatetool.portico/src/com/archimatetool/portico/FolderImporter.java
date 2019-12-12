@@ -23,6 +23,8 @@ class FolderImporter extends AbstractImporter {
     }
 
     IFolder importFolder(IFolder importedFolder) throws PorticoException {
+        boolean createdNewFolder = false;
+        
         // Do we have this folder given its ID?
         IFolder targetFolder = findObjectInTargetModel(importedFolder);
         
@@ -31,17 +33,22 @@ class FolderImporter extends AbstractImporter {
             // Is it a top level folder?
             targetFolder = getTargetModel().getFolder(importedFolder.getType());
             
-            // No, so create a new folder
+            // No, so create a new sub-folder
             if(targetFolder == null) {
                 targetFolder = cloneObject(importedFolder);
+                createdNewFolder = true;
+            }
+            // Yes it is a top-level folder so update it if the option is set
+            else if(doUpdateRoot()) {
+                updateObject(importedFolder, targetFolder);
             }
         }
-        else if(doReplaceWithSource()) {
+        else if(doUpdate()) {
             updateObject(importedFolder, targetFolder);
         }
 
         // Add to parent folder (if it's a sub-folder)
-        if(importedFolder.eContainer() instanceof IFolder) {
+        if((createdNewFolder || doUpdate()) && importedFolder.eContainer() instanceof IFolder) {
             addToParentFolder(importedFolder, targetFolder);
         }
         

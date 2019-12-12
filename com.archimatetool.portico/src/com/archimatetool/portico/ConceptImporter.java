@@ -23,27 +23,29 @@ class ConceptImporter extends AbstractImporter {
     }
     
     IArchimateConcept importConcept(IArchimateConcept importedConcept) throws PorticoException {
+        boolean createdNewConcept = false;
+        
         // Do we have this concept given its ID?
         IArchimateConcept targetConcept = findObjectInTargetModel(importedConcept);
-        
-        boolean createdNewConcept = false;
         
         // We don't have it, so create a new concept
         if(targetConcept == null) {
             targetConcept = cloneObject(importedConcept);
             createdNewConcept = true;
         }
-        else if(doReplaceWithSource()) {
+        else if(doUpdate()) {
             updateObject(importedConcept, targetConcept);
         }
         
-        // Relationship ends
-        if((doReplaceWithSource() || createdNewConcept) && importedConcept instanceof IArchimateRelationship) {
-            setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);
+        if(doUpdate() || createdNewConcept) {
+            // Relationship ends
+            if(importedConcept instanceof IArchimateRelationship) {
+                setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);
+            }
+            
+            // Add to parent folder
+            addToParentFolder(importedConcept, targetConcept);
         }
-        
-        // Add to parent folder
-        addToParentFolder(importedConcept, targetConcept);
         
         return targetConcept;
     }

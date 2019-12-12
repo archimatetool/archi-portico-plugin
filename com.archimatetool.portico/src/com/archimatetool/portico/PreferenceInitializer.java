@@ -23,6 +23,7 @@ implements IPreferenceConstants {
     public void initializeDefaultPreferences() {
         IPreferenceStore store = PorticoPlugin.INSTANCE.getPreferenceStore();
         
-        store.setDefault(PORTICO_PREFS_DO_REPLACE_WITH_SOURCE, true);
+        store.setDefault(IMPORTER_PREFS_UPDATE, false);
+        store.setDefault(IMPORTER_PREFS_UPDATE_ROOT, false);
     }
 }

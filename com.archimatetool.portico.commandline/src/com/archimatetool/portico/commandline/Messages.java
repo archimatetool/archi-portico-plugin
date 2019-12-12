@@ -21,6 +21,8 @@ public class Messages extends NLS {
     public static String ImportModelProvider_6;
 
     public static String ImportModelProvider_7;
+
+    public static String ImportModelProvider_8;
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

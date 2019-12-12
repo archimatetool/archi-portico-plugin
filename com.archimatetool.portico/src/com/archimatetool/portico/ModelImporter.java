@@ -58,7 +58,8 @@ import com.archimatetool.model.util.ArchimateResourceFactory;
  */
 public class ModelImporter {
     
-    boolean replaceWithSource;
+    boolean doUpdate; // If true update target objects with source objects
+    boolean doUpdateRoot; // If true update model name, purpose, documentation and top level folders with source
     
     IArchimateModel importedModel;
     IArchimateModel targetModel;
@@ -72,14 +73,22 @@ public class ModelImporter {
     public ModelImporter() {
     }
 
-    public void doImport(File importedFile, IArchimateModel targetModel, boolean replaceWithSource) throws IOException, PorticoException {
-        this.targetModel = targetModel;
-        this.replaceWithSource = replaceWithSource;
+    public void doImport(File importedFile, IArchimateModel targetModel) throws IOException, PorticoException {
         importedModel = loadModel(importedFile);
+
+        this.targetModel = targetModel;
         
         objectCache = createObjectIDCache();
         
         compoundCommand = new NonNotifyingCompoundCommand(Messages.ModelImporter_1);
+        
+        // Upate root model object if the option is set
+        if(doUpdateRoot) {
+            addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.NAMEABLE__NAME, importedModel.getName()));
+            addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, importedModel.getPurpose()));
+            addCommand(new UpdatePropertiesCommand(importedModel, importedModel));
+            addCommand(new UpdateFeaturesCommand(importedModel, importedModel));
+        }
         
         // Iterate through all model contents
         for(Iterator<EObject> iter = importedModel.eAllContents(); iter.hasNext();) {
@@ -100,7 +109,7 @@ public class ModelImporter {
         }
         
         // Post processing of the whole model
-        if(replaceWithSource) {
+        if(doUpdate) {
             addCommand(new SetArchimateReconnectionCommand());
         }
         
@@ -112,9 +121,27 @@ public class ModelImporter {
     }
     
     /**
+     * If true update/replace target objects with source objects - sub-folders, concepts, folder structure, views
+     */
+    public void setUpdate(boolean doUpdate) {
+        this.doUpdate = doUpdate;
+    }
+    
+    /**
+     * If true update/replace model and top level folders' name, purpose, documentation and properties with source
+     */
+    public void setUpdateRoot(boolean doUpdateRoot) {
+        this.doUpdateRoot = doUpdateRoot;
+    }
+    
+    /**
      * Load a model from file
      */
     private IArchimateModel loadModel(File file) throws IOException {
+        if(!file.exists()) {
+            throw new IOException(NLS.bind(Messages.ModelImporter_2, file));
+        }
+        
         // Ascertain if this is an archive file
         boolean useArchiveFormat = IArchiveManager.FACTORY.isArchiveFile(file);
         

@@ -26,7 +26,7 @@ import com.archimatetool.portico.ModelImporter;
  * 
  * Archi -consoleLog -nosplash -application com.archimatetool.commandline.app
    --createEmptyModel
-   --portico.import "mymodel.archimate" --portico.replace
+   --importModel "mymodel.archimate" --update --updateRoot
  * 
  * @author Phillip Beauvoir
  */
@@ -34,8 +34,9 @@ public class ImportModelProvider extends AbstractCommandLineProvider {
 
     static final String PREFIX = Messages.ImportModelProvider_0;
     
-    static final String OPTION_IMPORT_MODEL = "portico.import"; //$NON-NLS-1$
-    static final String OPTION_REPLACE_WITH_SOURCE = "portico.replace"; //$NON-NLS-1$
+    static final String OPTION_IMPORT_MODEL = "importModel"; //$NON-NLS-1$
+    static final String OPTION_UPDATE = "importModel.update"; //$NON-NLS-1$
+    static final String OPTION_UPDATE_ROOT = "importModel.updateRoot"; //$NON-NLS-1$
     
     public ImportModelProvider() {
     }
@@ -65,10 +66,14 @@ public class ImportModelProvider extends AbstractCommandLineProvider {
             return;
         }
 
-        boolean replaceWithSource = commandLine.hasOption(OPTION_REPLACE_WITH_SOURCE);
+        boolean update = commandLine.hasOption(OPTION_UPDATE);
+        boolean updateRoot = commandLine.hasOption(OPTION_UPDATE_ROOT);
         
         ModelImporter importer = new ModelImporter();
-        importer.doImport(modelFile, model, replaceWithSource);
+        importer.setUpdate(update);
+        importer.setUpdateRoot(updateRoot);
+        
+        importer.doImport(modelFile, model);
 
         logMessage(Messages.ImportModelProvider_4);
     }
@@ -85,13 +90,20 @@ public class ImportModelProvider extends AbstractCommandLineProvider {
                 .build();
         options.addOption(option);
         
-        // Replace with source option
+        // Update with source option
         option = Option.builder()
-                .longOpt(OPTION_REPLACE_WITH_SOURCE)
+                .longOpt(OPTION_UPDATE)
                 .desc(Messages.ImportModelProvider_7)
                 .build();
         options.addOption(option);
         
+        // Update root with source option
+        option = Option.builder()
+                .longOpt(OPTION_UPDATE_ROOT)
+                .desc(Messages.ImportModelProvider_8)
+                .build();
+        options.addOption(option);
+
         return options;
     }
     

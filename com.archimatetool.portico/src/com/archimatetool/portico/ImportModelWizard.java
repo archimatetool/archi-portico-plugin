@@ -17,10 +17,11 @@ import org.eclipse.jface.wizard.Wizard;
  */
 public class ImportModelWizard extends Wizard {
 
-    private ImportModelPage fPage;
+    private ImportModelPage page;
     
     private File file;
-    private boolean doReplaceWithSource;
+    private boolean doUpdate;
+    private boolean doUpdateRoot;
 
     public ImportModelWizard() {
         setWindowTitle(Messages.ImportModelWizard_0);
@@ -28,15 +29,18 @@ public class ImportModelWizard extends Wizard {
 
     @Override
     public void addPages() {
-        fPage = new ImportModelPage();
-        addPage(fPage);
+        page = new ImportModelPage();
+        addPage(page);
     }
 
     @Override
     public boolean performFinish() {
-        file = new File(fPage.getFileName());
-        doReplaceWithSource = fPage.doReplaceWithSource();
-        fPage.storePreferences();
+        file = new File(page.getFileName());
+        doUpdate = page.doUpdate();
+        doUpdateRoot = page.doUpdateRoot();
+        
+        page.storePreferences();
+        
         return true;
     }
 
@@ -44,7 +48,11 @@ public class ImportModelWizard extends Wizard {
         return file;
     }
     
-    boolean doReplaceWithSource() {
-        return doReplaceWithSource;
+    boolean doUpdate() {
+        return doUpdate;
+    }
+    
+    boolean doUpdateRoot() {
+        return doUpdateRoot;
     }
 }

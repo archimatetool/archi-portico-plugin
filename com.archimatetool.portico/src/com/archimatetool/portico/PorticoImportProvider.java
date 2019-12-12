@@ -50,7 +50,8 @@ public class PorticoImportProvider implements ISelectedModelImporter {
         };
         
         if(dialog.open() == Window.OK) {
-            boolean replaceWithSource = wizard.doReplaceWithSource();
+            boolean doUpdate = wizard.doUpdate();
+            boolean doUpdateRoot = wizard.doUpdateRoot();
             
             File importedFile = wizard.getFile();
             if(importedFile == null) {
@@ -58,11 +59,15 @@ public class PorticoImportProvider implements ISelectedModelImporter {
             }
             
             ModelImporter importer = new ModelImporter();
+            
+            importer.setUpdate(doUpdate);
+            importer.setUpdateRoot(doUpdateRoot);
+            
             Exception[] ex = new Exception[1];
 
             BusyIndicator.showWhile(Display.getCurrent(), () -> {
                 try {
-                    importer.doImport(importedFile, targetModel, replaceWithSource);
+                    importer.doImport(importedFile, targetModel);
                 }
                 catch(Exception ex1) {
                     ex[0] = ex1;
