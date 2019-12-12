@@ -351,14 +351,13 @@ public class ModelImporter {
             return null;
         }
         
-        // Found an element with this id and the class is the same
-        if(foundObject.eClass() == eObject.eClass()) {
-            return (T)foundObject;
-        }
         // Not the right class, so that's an error we should report
-        else {
+        if(foundObject.eClass() != eObject.eClass()) {
             throw new ImportException("Found object with same id but different class: " + eObject.getId()); //$NON-NLS-1$
         }
+
+        // Found an element with this id and the class is the same
+        return (T)foundObject;
     }
     
     /**
