@@ -33,11 +33,11 @@ class ConceptImporter extends AbstractImporter {
             targetConcept = cloneObject(importedConcept);
             createdNewConcept = true;
         }
-        else if(doUpdate()) {
+        else if(shouldUpdate()) {
             updateObject(importedConcept, targetConcept);
         }
         
-        if(doUpdate() || createdNewConcept) {
+        if(shouldUpdate() || createdNewConcept) {
             // Relationship ends
             if(importedConcept instanceof IArchimateRelationship) {
                 setRelationshipEnds((IArchimateRelationship)importedConcept, (IArchimateRelationship)targetConcept);

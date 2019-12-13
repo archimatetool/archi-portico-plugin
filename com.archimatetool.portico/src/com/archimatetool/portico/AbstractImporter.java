@@ -29,12 +29,12 @@ abstract class AbstractImporter {
         this.importer = importer;
     }
     
-    protected boolean doUpdate() {
-        return importer.doUpdate();
+    protected boolean shouldUpdate() {
+        return importer.shouldUpdate();
     }
     
-    protected boolean doUpdateRoot() {
-        return importer.doUpdateRoot();
+    protected boolean shouldUpdateAll() {
+        return importer.shouldUpdateAll();
     }
     
     protected <T extends IIdentifier> T findObjectInTargetModel(T eObject) throws ImportException {

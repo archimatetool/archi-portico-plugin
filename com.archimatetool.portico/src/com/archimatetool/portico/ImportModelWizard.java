@@ -20,8 +20,8 @@ public class ImportModelWizard extends Wizard {
     private ImportModelPage page;
     
     private File file;
-    private boolean doUpdate;
-    private boolean doUpdateRoot;
+    private boolean update;
+    private boolean updateAll;
 
     public ImportModelWizard() {
         setWindowTitle(Messages.ImportModelWizard_0);
@@ -36,8 +36,8 @@ public class ImportModelWizard extends Wizard {
     @Override
     public boolean performFinish() {
         file = new File(page.getFileName());
-        doUpdate = page.doUpdate();
-        doUpdateRoot = page.doUpdateRoot();
+        update = page.shouldUpdate();
+        updateAll = page.shouldUpdateAll();
         
         page.storePreferences();
         
@@ -48,11 +48,11 @@ public class ImportModelWizard extends Wizard {
         return file;
     }
     
-    boolean doUpdate() {
-        return doUpdate;
+    boolean shouldUpdate() {
+        return update;
     }
     
-    boolean doUpdateRoot() {
-        return doUpdateRoot;
+    boolean shouldUpdateAll() {
+        return updateAll;
     }
 }

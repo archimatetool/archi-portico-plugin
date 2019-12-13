@@ -37,8 +37,8 @@ public class ModelImporterTests {
     public void importModel_Initialised() {
         ModelImporter importer = new ModelImporter();
         
-        assertFalse(importer.doUpdate());
-        assertFalse(importer.doUpdateRoot());
+        assertFalse(importer.shouldUpdate());
+        assertFalse(importer.shouldUpdateAll());
         assertNull(importer.getImportedModel());
         assertNull(importer.getTargetModel());
     }
@@ -103,10 +103,10 @@ public class ModelImporterTests {
     }
     
     @Test
-    public void doImport_UpdateRoot() throws Exception {
+    public void doImport_UpdateAll() throws Exception {
         ModelImporter importer = new ModelImporter();
         importer.setUpdate(true);
-        importer.setUpdateRoot(true);
+        importer.setUpdateAll(true);
         
         ArchimateTestModel tm = new ArchimateTestModel();
         IArchimateModel model = tm.createNewModel();

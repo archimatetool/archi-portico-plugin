@@ -60,7 +60,7 @@ class ViewImporter extends AbstractImporter {
             addToParentFolder(importedView, targetView);
         }
         // We have it so update it
-        else if(doUpdate()) {
+        else if(shouldUpdate()) {
             updateView();
             createChildren();
             addToParentFolder(importedView, targetView);

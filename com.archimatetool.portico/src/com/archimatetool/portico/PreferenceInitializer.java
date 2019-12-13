@@ -24,6 +24,6 @@ implements IPreferenceConstants {
         IPreferenceStore store = ImporterPlugin.INSTANCE.getPreferenceStore();
         
         store.setDefault(IMPORTER_PREFS_UPDATE, false);
-        store.setDefault(IMPORTER_PREFS_UPDATE_ROOT, false);
+        store.setDefault(IMPORTER_PREFS_UPDATE_ALL, false);
     }
 }

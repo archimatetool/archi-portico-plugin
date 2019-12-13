@@ -43,7 +43,7 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
     
     private Text fFileTextField;
     private Button fUpdateButton;
-    private Button fUpdateRootButton;
+    private Button fUpdateAllButton;
     
     public ImportModelPage() {
         super("ImportModelPage"); //$NON-NLS-1$
@@ -118,10 +118,10 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
             }
         });
         
-        fUpdateRootButton = new Button(optionsGroup, SWT.CHECK);
-        fUpdateRootButton.setSelection(ImporterPlugin.INSTANCE.getPreferenceStore().getBoolean(IMPORTER_PREFS_UPDATE_ROOT));
-        fUpdateRootButton.setText(Messages.ImportModelPage_8);
-        fUpdateRootButton.setLayoutData(gd);
+        fUpdateAllButton = new Button(optionsGroup, SWT.CHECK);
+        fUpdateAllButton.setSelection(ImporterPlugin.INSTANCE.getPreferenceStore().getBoolean(IMPORTER_PREFS_UPDATE_ALL));
+        fUpdateAllButton.setText(Messages.ImportModelPage_8);
+        fUpdateAllButton.setLayoutData(gd);
         
         setButtonState();
     }
@@ -130,18 +130,18 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
         return fFileTextField.getText();
     }
 
-    boolean doUpdate() {
+    boolean shouldUpdate() {
         return fUpdateButton.getSelection();
     }
     
-    boolean doUpdateRoot() {
-        return fUpdateRootButton.getSelection();
+    boolean shouldUpdateAll() {
+        return fUpdateAllButton.getSelection();
     }
     
     private void setButtonState() {
-        fUpdateRootButton.setEnabled(fUpdateButton.getSelection());
+        fUpdateAllButton.setEnabled(fUpdateButton.getSelection());
         if(!fUpdateButton.getSelection()) {
-            fUpdateRootButton.setSelection(false);
+            fUpdateAllButton.setSelection(false);
         }
     }
     
@@ -174,7 +174,7 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
     void storePreferences() {
         IPreferenceStore store = ImporterPlugin.INSTANCE.getPreferenceStore();
         store.setValue(IMPORTER_PREFS_LAST_FILE, getFileName());
-        store.setValue(IMPORTER_PREFS_UPDATE, doUpdate());
-        store.setValue(IMPORTER_PREFS_UPDATE_ROOT, doUpdateRoot());
+        store.setValue(IMPORTER_PREFS_UPDATE, shouldUpdate());
+        store.setValue(IMPORTER_PREFS_UPDATE_ALL, shouldUpdateAll());
     }
 }

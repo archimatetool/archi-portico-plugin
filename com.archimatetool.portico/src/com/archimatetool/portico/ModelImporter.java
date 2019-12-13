@@ -58,8 +58,8 @@ import com.archimatetool.model.util.ArchimateResourceFactory;
  */
 public class ModelImporter {
     
-    private boolean doUpdate; // If true update target objects with source objects
-    private boolean doUpdateRoot; // If true update model name, purpose, documentation and top level folders with source
+    private boolean update; // If true update target objects with source objects
+    private boolean updateAll; // If true update model name, purpose, documentation and top level folders with source
     
     private IArchimateModel importedModel;
     private IArchimateModel targetModel;
@@ -83,7 +83,7 @@ public class ModelImporter {
         compoundCommand = new NonNotifyingCompoundCommand(Messages.ModelImporter_1);
         
         // Upate root model object if the option is set
-        if(doUpdateRoot) {
+        if(updateAll) {
             addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.NAMEABLE__NAME, importedModel.getName()));
             addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, importedModel.getPurpose()));
             addCommand(new UpdatePropertiesCommand(importedModel, importedModel));
@@ -109,7 +109,7 @@ public class ModelImporter {
         }
         
         // Post processing of the whole model
-        if(doUpdate) {
+        if(update) {
             addCommand(new SetArchimateReconnectionCommand());
         }
         
@@ -131,23 +131,24 @@ public class ModelImporter {
     /**
      * If true update/replace target objects with source objects - sub-folders, concepts, folder structure, views
      */
-    public void setUpdate(boolean doUpdate) {
-        this.doUpdate = doUpdate;
+    public void setUpdate(boolean update) {
+        this.update = update;
     }
     
-    public boolean doUpdate() {
-        return doUpdate;
+    public boolean shouldUpdate() {
+        return update;
     }
     
     /**
      * If true update/replace model and top level folders' name, purpose, documentation and properties with source
      */
-    public void setUpdateRoot(boolean doUpdateRoot) {
-        this.doUpdateRoot = doUpdateRoot;
+    public void setUpdateAll(boolean updateAll) {
+        this.updateAll = updateAll;
+        update = true; // If we are updating all then set this too
     }
     
-    public boolean doUpdateRoot() {
-        return doUpdateRoot;
+    public boolean shouldUpdateAll() {
+        return updateAll;
     }
     
     /**

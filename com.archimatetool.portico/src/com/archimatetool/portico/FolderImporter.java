@@ -28,9 +28,9 @@ class FolderImporter extends AbstractImporter {
         // Do we have this folder given its ID?
         IFolder targetFolder = findObjectInTargetModel(importedFolder);
         
-        // We don't have it
+        // No, we don't have it
         if(targetFolder == null) {
-            // Is it a top level folder?
+            // Do we have it as a top-level folder?
             targetFolder = getTargetModel().getFolder(importedFolder.getType());
             
             // No, so create a new sub-folder
@@ -39,16 +39,17 @@ class FolderImporter extends AbstractImporter {
                 createdNewFolder = true;
             }
             // Yes it is a top-level folder so update it if the option is set
-            else if(doUpdateRoot()) {
+            else if(shouldUpdateAll()) {
                 updateObject(importedFolder, targetFolder);
             }
         }
-        else if(doUpdate()) {
+        // We do have it so update it if the option is set
+        else if((isUserFolder(importedFolder) && shouldUpdate()) || (isTopLevelFolder(importedFolder) && shouldUpdateAll())) {
             updateObject(importedFolder, targetFolder);
         }
 
         // Add to parent folder (if it's a sub-folder)
-        if((createdNewFolder || doUpdate()) && importedFolder.eContainer() instanceof IFolder) {
+        if((createdNewFolder || shouldUpdate()) && isUserFolder(importedFolder)) {
             addToParentFolder(importedFolder, targetFolder);
         }
         
@@ -66,7 +67,7 @@ class FolderImporter extends AbstractImporter {
         IFolder importedParentFolder = (IFolder)importedFolder.eContainer();
 
         // Imported object's parent folder is a User folder
-        if(importedParentFolder.getType() == FolderType.USER) {
+        if(isUserFolder(importedParentFolder)) {
             // Do we have this matching parent folder?
             IFolder targetParentFolder = findObjectInTargetModel(importedParentFolder);
             // Yes, add the sub-folder to it
@@ -85,6 +86,13 @@ class FolderImporter extends AbstractImporter {
         }
     }
     
+    private boolean isTopLevelFolder(IFolder folder) {
+        return folder.getType() != FolderType.USER;
+    }
+    
+    private boolean isUserFolder(IFolder folder) {
+        return folder.getType() == FolderType.USER;
+    }
     
     // ====================================================================================================
     // Commands

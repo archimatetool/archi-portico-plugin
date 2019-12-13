@@ -26,7 +26,7 @@ import com.archimatetool.portico.ModelImporter;
  * 
  * Archi -consoleLog -nosplash -application com.archimatetool.commandline.app
    --createEmptyModel
-   --importModel "mymodel.archimate" --update --updateRoot
+   --importModel "mymodel.archimate" --update --updateAll
  * 
  * @author Phillip Beauvoir
  */
@@ -36,7 +36,7 @@ public class ImportModelProvider extends AbstractCommandLineProvider {
     
     static final String OPTION_IMPORT_MODEL = "importModel"; //$NON-NLS-1$
     static final String OPTION_UPDATE = "importModel.update"; //$NON-NLS-1$
-    static final String OPTION_UPDATE_ROOT = "importModel.updateRoot"; //$NON-NLS-1$
+    static final String OPTION_UPDATE_ALL = "importModel.updateAll"; //$NON-NLS-1$
     
     public ImportModelProvider() {
     }
@@ -67,11 +67,11 @@ public class ImportModelProvider extends AbstractCommandLineProvider {
         }
 
         boolean update = commandLine.hasOption(OPTION_UPDATE);
-        boolean updateRoot = commandLine.hasOption(OPTION_UPDATE_ROOT);
+        boolean updateAll = commandLine.hasOption(OPTION_UPDATE_ALL);
         
         ModelImporter importer = new ModelImporter();
         importer.setUpdate(update);
-        importer.setUpdateRoot(updateRoot);
+        importer.setUpdateAll(updateAll);
         
         importer.doImport(modelFile, model);
 
@@ -99,7 +99,7 @@ public class ImportModelProvider extends AbstractCommandLineProvider {
         
         // Update root with source option
         option = Option.builder()
-                .longOpt(OPTION_UPDATE_ROOT)
+                .longOpt(OPTION_UPDATE_ALL)
                 .desc(Messages.ImportModelProvider_8)
                 .build();
         options.addOption(option);

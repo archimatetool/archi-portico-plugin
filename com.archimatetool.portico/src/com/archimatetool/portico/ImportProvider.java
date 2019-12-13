@@ -50,9 +50,6 @@ public class ImportProvider implements ISelectedModelImporter {
         };
         
         if(dialog.open() == Window.OK) {
-            boolean doUpdate = wizard.doUpdate();
-            boolean doUpdateRoot = wizard.doUpdateRoot();
-            
             File importedFile = wizard.getFile();
             if(importedFile == null) {
                 return;
@@ -60,8 +57,8 @@ public class ImportProvider implements ISelectedModelImporter {
             
             ModelImporter importer = new ModelImporter();
             
-            importer.setUpdate(doUpdate);
-            importer.setUpdateRoot(doUpdateRoot);
+            importer.setUpdate(wizard.shouldUpdate());
+            importer.setUpdateAll(wizard.shouldUpdateAll());
             
             Exception[] ex = new Exception[1];
 
