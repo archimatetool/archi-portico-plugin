@@ -84,10 +84,8 @@ public class ModelImporter {
         
         // Upate root model object if the option is set
         if(updateAll) {
-            addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.NAMEABLE__NAME, importedModel.getName()));
+            updateObject(importedModel, targetModel);
             addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, importedModel.getPurpose()));
-            addCommand(new UpdatePropertiesCommand(importedModel, importedModel));
-            addCommand(new UpdateFeaturesCommand(importedModel, importedModel));
         }
         
         // Iterate through all model contents
