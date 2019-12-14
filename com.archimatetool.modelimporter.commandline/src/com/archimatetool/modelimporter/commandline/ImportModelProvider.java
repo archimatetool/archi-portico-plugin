@@ -26,7 +26,7 @@ import com.archimatetool.modelimporter.ModelImporter;
  * 
  * Archi -consoleLog -nosplash -application com.archimatetool.commandline.app
    --createEmptyModel
-   --importModel "mymodel.archimate" --update --updateAll
+   --importModel "mymodel.archimate" --importModel.update --importModel.updateAll
  * 
  * @author Phillip Beauvoir
  */
