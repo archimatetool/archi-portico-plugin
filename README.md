@@ -1,10 +1,10 @@
-﻿# Archi Portico Plug-in
+﻿# Archi Model Importer Plug-in
 
 ## What is this?
-This is an extension to Archi that imports and merges a model into an existing model.
+This is an Archi "punkworks" project to import and merge an Archi model into another Archi model.
 
 ## How to use it
-Binaries will be made available separately.
+Once the "punkworks" testing stage has completed it will be integrated into the main Archi code.
 
 ## Archi
 Archi® is a free, open source, cross-platform tool and editor to create ArchiMate models.
