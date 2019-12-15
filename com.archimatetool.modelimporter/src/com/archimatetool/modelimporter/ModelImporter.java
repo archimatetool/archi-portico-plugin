@@ -142,7 +142,9 @@ public class ModelImporter {
      */
     public void setUpdateAll(boolean updateAll) {
         this.updateAll = updateAll;
-        update = true; // If we are updating all then set this too
+        if(updateAll) {
+            update = true; // If we are updating all then set this too
+        }
     }
     
     public boolean shouldUpdateAll() {
