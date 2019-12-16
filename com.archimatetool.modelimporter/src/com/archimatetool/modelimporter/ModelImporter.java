@@ -108,7 +108,7 @@ public class ModelImporter {
         
         // Check view connection ends are valid if we have done some commands and even if update is off
         if(compoundCommand.canExecute()) {
-            addCommand(new SetArchimateReconnectionCommand());
+            addCommand(new SetArchimateReconnectionCommand(targetModel));
         }
         
         // Run Commands
@@ -220,119 +220,12 @@ public class ModelImporter {
         return map;
     }
 
-    // =============================================================================================
-    // Post processing of model
-    // =============================================================================================
-    
-    /**
-     * This can only be executed once all previous commands have run so that the target model is in the correct state
-     */
-    private class SetArchimateReconnectionCommand extends Command {
-        private CompoundCommand compoundCommand;
-        
-        private SetArchimateReconnectionCommand() {
-            compoundCommand = new CompoundCommand();
-        }
-        
-        @Override
-        public void execute() {
-            for(Iterator<EObject> iter = targetModel.eAllContents(); iter.hasNext();) {
-                EObject eObject = iter.next();
-                
-                // Archimate View Connections might need reconnecting
-                if(eObject instanceof IDiagramModelArchimateConnection) {
-                    compoundCommand.add(getArchimateReconnectionCommand((IDiagramModelArchimateConnection)eObject));
-                }
-            }
-            
-            compoundCommand.execute();
-        }
-        
-        @Override
-        public void undo() {
-            compoundCommand.undo();
-        }
-        
-        @Override
-        public void redo() {
-            compoundCommand.execute();
-        }
-        
-        @Override
-        public void dispose() {
-            compoundCommand.dispose();
-        }
-    }
-    
-    /**
-     * Reconnect Archimate connections in case of relationship ends having changed
-     */
-    private Command getArchimateReconnectionCommand(IDiagramModelArchimateConnection connection) {
-        CompoundCommand cmd = new CompoundCommand();
-        
-        IArchimateRelationship relationship = connection.getArchimateRelationship();
-
-        // Is source object valid?
-        if(((IDiagramModelArchimateComponent)connection.getSource()).getArchimateConcept() != relationship.getSource()) {
-            // Get the first instance of the new source in this view and connect to that
-            List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(connection.getDiagramModel(),
-                    relationship.getSource());
-            if(!list.isEmpty()) {
-                IDiagramModelArchimateComponent matchingComponent = list.get(0);
-                IConnectable oldSource = connection.getSource();
-                cmd.add(new Command() {
-                    @Override
-                    public void execute() {
-                        connection.connect(matchingComponent, connection.getTarget());
-                    }
-                    
-                    @Override
-                    public void undo() {
-                        connection.connect(oldSource, connection.getTarget());
-                    }
-                });
-            }
-            // Not found, so delete the matching connection
-            else {
-                cmd.add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
-            }
-        }
-
-        // Is target object valid?
-        if(((IDiagramModelArchimateComponent)connection.getTarget()).getArchimateConcept() != relationship.getTarget()) {
-            // Get the first instance of the new source in this view and connect to that
-            List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(connection.getDiagramModel(), relationship.getTarget());
-            if(!list.isEmpty()) {
-                IDiagramModelArchimateComponent matchingComponent = list.get(0);
-                IConnectable oldTarget = connection.getTarget();
-                cmd.add(new Command() {
-                    @Override
-                    public void execute() {
-                        connection.connect(connection.getSource(), matchingComponent);
-                    }
-                    
-                    @Override
-                    public void undo() {
-                        connection.connect(connection.getSource(), oldTarget);
-                    }
-                });
-            }
-            // Not found, so delete the matching connection
-            else {
-                cmd.add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
-            }
-        }
-        
-        return cmd;
-    }
-
     // ===================================================================================
     // Shared methods
     // ===================================================================================
     
-    
     /**
-     * Add a command to the Compound Command for late execution
+     * Add a command to the Compound Command for later execution
      */
     void addCommand(Command cmd) {
         if(cmd.canExecute()) {
@@ -473,4 +366,91 @@ public class ModelImporter {
             oldFeatures = null;
         }
     }
+    
+    /**
+     * Archimate View Connections might need reconnecting or disconnecting
+     * This can only be executed once all previous commands have run so that the target model is in the correct state
+     */
+    private static class SetArchimateReconnectionCommand extends CompoundCommand {
+        private IArchimateModel model;
+        
+        private SetArchimateReconnectionCommand(IArchimateModel model) {
+            this.model = model;
+            
+            // Add an empty Command so this always executes
+            add(new Command() {});
+        }
+        
+        @Override
+        public void execute() {
+            for(Iterator<EObject> iter = model.eAllContents(); iter.hasNext();) {
+                EObject eObject = iter.next();
+                
+                if(eObject instanceof IDiagramModelArchimateConnection) {
+                    addArchimateReconnectionCommand((IDiagramModelArchimateConnection)eObject);
+                }
+            }
+            
+            super.execute();
+        }
+        
+        /**
+         * Reconnect Archimate connections in case of relationship ends having changed
+         */
+        private void addArchimateReconnectionCommand(IDiagramModelArchimateConnection connection) {
+            IArchimateRelationship relationship = connection.getArchimateRelationship();
+
+            // Is source object valid?
+            if(((IDiagramModelArchimateComponent)connection.getSource()).getArchimateConcept() != relationship.getSource()) {
+                // Get the first instance of the new source in this view and connect to that
+                List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(connection.getDiagramModel(),
+                        relationship.getSource());
+                if(!list.isEmpty()) {
+                    IDiagramModelArchimateComponent matchingComponent = list.get(0);
+                    IConnectable oldSource = connection.getSource();
+                    add(new Command() {
+                        @Override
+                        public void execute() {
+                            connection.connect(matchingComponent, connection.getTarget());
+                        }
+                        
+                        @Override
+                        public void undo() {
+                            connection.connect(oldSource, connection.getTarget());
+                        }
+                    });
+                }
+                // Not found, so delete the matching connection
+                else {
+                    add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
+                }
+            }
+
+            // Is target object valid?
+            if(((IDiagramModelArchimateComponent)connection.getTarget()).getArchimateConcept() != relationship.getTarget()) {
+                // Get the first instance of the new source in this view and connect to that
+                List<IDiagramModelArchimateComponent> list = DiagramModelUtils.findDiagramModelComponentsForArchimateConcept(connection.getDiagramModel(), relationship.getTarget());
+                if(!list.isEmpty()) {
+                    IDiagramModelArchimateComponent matchingComponent = list.get(0);
+                    IConnectable oldTarget = connection.getTarget();
+                    add(new Command() {
+                        @Override
+                        public void execute() {
+                            connection.connect(connection.getSource(), matchingComponent);
+                        }
+                        
+                        @Override
+                        public void undo() {
+                            connection.connect(connection.getSource(), oldTarget);
+                        }
+                    });
+                }
+                // Not found, so delete the matching connection
+                else {
+                    add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
+                }
+            }
+        }
+    }
+
 }
