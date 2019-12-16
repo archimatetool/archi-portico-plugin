@@ -106,8 +106,10 @@ public class ModelImporter {
             }
         }
         
-        // Check view connection ends are valid even if update is off
-        addCommand(new SetArchimateReconnectionCommand());
+        // Check view connection ends are valid if we have done some commands and even if update is off
+        if(compoundCommand.canExecute()) {
+            addCommand(new SetArchimateReconnectionCommand());
+        }
         
         // Run Commands
         CommandStack stack = (CommandStack)targetModel.getAdapter(CommandStack.class);
