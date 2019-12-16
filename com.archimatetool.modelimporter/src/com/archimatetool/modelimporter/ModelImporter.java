@@ -106,10 +106,8 @@ public class ModelImporter {
             }
         }
         
-        // Post processing of the whole model
-        if(update) {
-            addCommand(new SetArchimateReconnectionCommand());
-        }
+        // Check view connection ends are valid even if update is off
+        addCommand(new SetArchimateReconnectionCommand());
         
         // Run Commands
         CommandStack stack = (CommandStack)targetModel.getAdapter(CommandStack.class);
