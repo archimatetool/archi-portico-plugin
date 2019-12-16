@@ -394,6 +394,12 @@ public class ModelImporter {
             super.execute();
         }
         
+        @Override
+        public void dispose() {
+            super.dispose();
+            model = null;
+        }
+        
         /**
          * Reconnect Archimate connections in case of relationship ends having changed
          */
