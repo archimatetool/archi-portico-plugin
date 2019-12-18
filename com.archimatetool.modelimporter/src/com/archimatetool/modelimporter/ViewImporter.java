@@ -70,7 +70,7 @@ class ViewImporter extends AbstractImporter {
     }
     
     private void updateView() {
-        super.updateObject(importedView, targetView);
+        updateObject(importedView, targetView);
         
         // Connection Router
         addCommand(new ConnectionRouterTypeCommand(targetView, importedView.getConnectionRouterType()));
