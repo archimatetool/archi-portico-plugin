@@ -250,12 +250,21 @@ class ViewImporter extends AbstractImporter {
      * So we need to hook into this for an undo/redo action to reset the relationship ends
      */
     private static class ArchimateConnectionCommand extends Command {
+        private IDiagramModelArchimateConnection connection;
+        private IConnectable connectionSource, connectionTarget;
         private IArchimateRelationship relationship;
         private IArchimateConcept oldSource, oldTarget;
         private IArchimateConcept newSource, newTarget;
         
         private ArchimateConnectionCommand(IDiagramModelArchimateConnection connection, IConnectable connectionSource, IConnectable connectionTarget) {
+            this.connection = connection;
+            this.connectionSource = connectionSource;
+            this.connectionTarget = connectionTarget;
             relationship = connection.getArchimateRelationship();
+        }
+        
+        @Override
+        public void execute() {
             oldSource = relationship.getSource();
             oldTarget = relationship.getTarget();
             
