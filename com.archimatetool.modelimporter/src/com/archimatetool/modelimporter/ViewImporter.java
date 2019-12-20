@@ -22,6 +22,7 @@ import com.archimatetool.editor.model.IArchiveManager;
 import com.archimatetool.editor.model.commands.EObjectFeatureCommand;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimatePackage;
+import com.archimatetool.model.IArchimateRelationship;
 import com.archimatetool.model.IConnectable;
 import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateComponent;
@@ -104,7 +105,7 @@ class ViewImporter extends AbstractImporter {
         // Add these to a Command so they can be undone
         addCommand(new SetViewChildrenCommand(targetView, newChildren));
         
-        // Create connections. These don't have have to be put on the Command stack as they will be removed
+        // Create connections.
         createConnections();
     }
     
@@ -154,7 +155,7 @@ class ViewImporter extends AbstractImporter {
             
             IConnectable targetSource = findObjectInTargetModel(importedConnection.getSource());
             if(targetSource == null) {
-                throw new ImportException("Could not find target component: " + importedConnection.getSource().getId()); //$NON-NLS-1$
+                throw new ImportException("Could not find source component: " + importedConnection.getSource().getId()); //$NON-NLS-1$
             }
             
             IConnectable targetTarget = findObjectInTargetModel(importedConnection.getTarget());
@@ -162,13 +163,17 @@ class ViewImporter extends AbstractImporter {
                 throw new ImportException("Could not find target component: " + importedConnection.getTarget().getId()); //$NON-NLS-1$
             }
             
-            // It's an Archimate connection so set its Archimate concept
-            // Do this first before connecting source and target otherwise you'll end up with duplicate relationships
+            // It's an Archimate connection
             if(targetConnection instanceof IDiagramModelArchimateConnection) {
+                // Set the connections's relationship first before connecting source and target otherwise we end up with duplicate relationships
                 setArchimateConcept((IDiagramModelArchimateConnection)importedConnection, (IDiagramModelArchimateConnection)targetConnection);
+                // Need a Command for this
+                addCommand(new ArchimateConnectionCommand((IDiagramModelArchimateConnection)targetConnection, targetSource, targetTarget));
             }
-
-            targetConnection.connect(targetSource, targetTarget);
+            // Other connection
+            else {
+                targetConnection.connect(targetSource, targetTarget);
+            }
         }
     }
     
@@ -238,5 +243,46 @@ class ViewImporter extends AbstractImporter {
         }
     }
     
+    /**
+     * If, when importing, "update" is off then any relationship source/target ends will not be updated.
+     * However, if a new View is added, when a connection is made it calls DiagramModelArchimateConnection#connect() which calls DiagramModelArchimateConnection#reconnect()
+     * This will then re-assign the source/target of the connection's relationship if it has changed.
+     * So we need to hook into this for an undo/redo action to reset the relationship ends
+     */
+    private static class ArchimateConnectionCommand extends Command {
+        private IArchimateRelationship relationship;
+        private IArchimateConcept oldSource, oldTarget;
+        private IArchimateConcept newSource, newTarget;
+        
+        private ArchimateConnectionCommand(IDiagramModelArchimateConnection connection, IConnectable connectionSource, IConnectable connectionTarget) {
+            relationship = connection.getArchimateRelationship();
+            oldSource = relationship.getSource();
+            oldTarget = relationship.getTarget();
+            
+            connection.connect(connectionSource, connectionTarget);
+            
+            newSource = relationship.getSource();
+            newTarget = relationship.getTarget();
+        }
+        
+        @Override
+        public void undo() {
+            if(oldSource != newSource) {
+                relationship.setSource(oldSource);
+            }
+            if(oldTarget != newTarget) {
+                relationship.setTarget(oldTarget);
+            }
+        }
 
+        @Override
+        public void redo() {
+            if(oldSource != newSource) {
+                relationship.setSource(newSource);
+            }
+            if(oldTarget != newTarget) {
+                relationship.setTarget(newTarget);
+            }
+        }
+    }
 }
