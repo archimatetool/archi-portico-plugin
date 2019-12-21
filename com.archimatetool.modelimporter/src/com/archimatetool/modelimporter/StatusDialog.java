@@ -78,7 +78,9 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         btnInfo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                showMessages();
+                if(hasMessageType(Level.INFO)) {
+                    showMessages();
+                }
             }
         });
         
@@ -88,13 +90,19 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         btnWarning.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                showMessages();
+                if(hasMessageType(Level.WARNING)) {
+                    showMessages();
+                }
             }
         });
         
         showMessages();
         
         return composite;
+    }
+    
+    private boolean hasMessageType(Level level) {
+        return messages.stream().anyMatch(msg -> msg.getLevel() == level);
     }
     
     private void showMessages() {
