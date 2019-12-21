@@ -123,11 +123,7 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         messages.stream().filter(msg -> (showInfo && msg.getLevel() == Level.INFO) || (showWarn && msg.getLevel() == Level.WARNING))
                          .forEach(msg -> sb.append(msg + "\n")); //$NON-NLS-1$
 
-        getShell().getDisplay().asyncExec(() -> {
-            if(!textControl.isDisposed()) {
-                textControl.setText(sb.toString());
-            }
-        });
+        textControl.setText(sb.toString());
     }
     
     @Override
