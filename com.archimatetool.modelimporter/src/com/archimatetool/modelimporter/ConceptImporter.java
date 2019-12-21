@@ -8,6 +8,7 @@ package com.archimatetool.modelimporter;
 import org.eclipse.gef.commands.Command;
 
 import com.archimatetool.model.IArchimateConcept;
+import com.archimatetool.model.IArchimateElement;
 import com.archimatetool.model.IArchimateRelationship;
 import com.archimatetool.modelimporter.StatusMessage.Level;
 
@@ -33,11 +34,13 @@ class ConceptImporter extends AbstractImporter {
         if(targetConcept == null) {
             targetConcept = cloneObject(importedConcept);
             createdNewConcept = true;
-            logMessage(Level.INFO, "Concept Added: ''{0}''", targetConcept);
+            logMessage(Level.INFO, (targetConcept instanceof IArchimateElement)
+                    ? "Element Added: ''{0}''" : "Relationship Added: ''{0}''", targetConcept);
         }
         else if(shouldUpdate()) {
             updateObject(importedConcept, targetConcept);
-            logMessage(Level.INFO, "Concept Updated: ''{0}''", targetConcept);
+            logMessage(Level.INFO, (targetConcept instanceof IArchimateElement)
+                    ? "Element Updated: ''{0}''" : "Relationship Updated: ''{0}''", targetConcept);
         }
         
         if(shouldUpdate() || createdNewConcept) {

@@ -10,6 +10,9 @@ import java.util.List;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -34,6 +37,8 @@ import com.archimatetool.modelimporter.StatusMessage.Level;
 class StatusDialog extends ExtendedTitleAreaDialog {
     
     private static String HELP_ID = "com.archimatetool.help.ImportModel"; //$NON-NLS-1$
+    
+    private static final int COPY_TO_CLIPBOARD_BUTTON = IDialogConstants.CLIENT_ID + 1;
     
     private Text textControl;
     
@@ -124,10 +129,37 @@ class StatusDialog extends ExtendedTitleAreaDialog {
             }
         });
     }
+    
+    @Override
+    protected void buttonPressed(int buttonId) {
+        if(buttonId == COPY_TO_CLIPBOARD_BUTTON) {
+            copyToClipboard();
+        }
+        else {
+            super.buttonPressed(buttonId);
+        }
+    }
+    
+    private void copyToClipboard() {
+        Clipboard clipboard = null;
+        
+        try {
+            clipboard = new Clipboard(getShell().getDisplay());
+            clipboard.setContents(new Object[]{textControl.getText()}, new Transfer[]{TextTransfer.getInstance()});
+        }
+        finally {
+            if(clipboard != null) {
+                clipboard.dispose();
+            }
+        }
+    }
 
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
-        // create OK button
+        // Copy to clipboard
+        createButton(parent, COPY_TO_CLIPBOARD_BUTTON, Messages.StatusDialog_5, false);
+        
+        // OK button
         createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
     }
 
