@@ -76,33 +76,29 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         textControl.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
         textControl.setFont(JFaceResources.getTextFont());
         
-        btnInfo = new Button(composite, SWT.CHECK);
-        btnInfo.setText(Messages.StatusDialog_3);
-        btnInfo.setSelection(true);
-        btnInfo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if(hasMessageType(Level.INFO)) {
-                    showMessages();
-                }
-            }
-        });
-        
-        btnWarning = new Button(composite, SWT.CHECK);
-        btnWarning.setText(Messages.StatusDialog_4);
-        btnWarning.setSelection(true);
-        btnWarning.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if(hasMessageType(Level.WARNING)) {
-                    showMessages();
-                }
-            }
-        });
+        btnInfo = createCheckbox(composite, Messages.StatusDialog_3, Level.INFO);
+        btnWarning = createCheckbox(composite, Messages.StatusDialog_4, Level.WARNING);
         
         showMessages();
         
         return composite;
+    }
+    
+    private Button createCheckbox(Composite parent, String text, Level level) {
+        Button btn = new Button(parent, SWT.CHECK);
+        btn.setText(text);
+        btn.setSelection(true);
+        
+        btn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if(hasMessageType(level)) {
+                    showMessages();
+                }
+            }
+        });
+        
+        return btn;
     }
     
     private boolean hasMessageType(Level level) {
@@ -155,8 +151,8 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         // Copy to clipboard
         createButton(parent, COPY_TO_CLIPBOARD_BUTTON, Messages.StatusDialog_5, false);
         
-        // OK button
-        createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+        // Close button
+        createButton(parent, IDialogConstants.OK_ID, IDialogConstants.CLOSE_LABEL, true);
     }
 
     @Override
