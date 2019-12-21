@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -31,7 +30,6 @@ import com.archimatetool.editor.model.commands.NonNotifyingCompoundCommand;
 import com.archimatetool.editor.model.compatibility.CompatibilityHandlerException;
 import com.archimatetool.editor.model.compatibility.IncompatibleModelException;
 import com.archimatetool.editor.model.compatibility.ModelCompatibility;
-import com.archimatetool.editor.ui.ArchiLabelProvider;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateModelObject;
@@ -51,6 +49,7 @@ import com.archimatetool.model.INameable;
 import com.archimatetool.model.IProperties;
 import com.archimatetool.model.IProperty;
 import com.archimatetool.model.util.ArchimateResourceFactory;
+import com.archimatetool.modelimporter.StatusMessage.Level;
 
 
 /**
@@ -70,7 +69,7 @@ public class ModelImporter {
     private Map<String, IIdentifier> objectCache;
     
     // Status Messages
-    private List<String> statusMessages;
+    private List<StatusMessage> statusMessages;
     
     // Undo/Redo commands
     private NonNotifyingCompoundCommand compoundCommand;
@@ -93,7 +92,7 @@ public class ModelImporter {
         if(updateAll) {
             updateObject(importedModel, targetModel);
             addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, importedModel.getPurpose()));
-            logMessage("Model Updated: ''{0}''", importedModel);
+            logMessage(Level.INFO, "Model Updated: ''{0}''", importedModel);
         }
         
         // Iterate through all model contents
@@ -159,7 +158,7 @@ public class ModelImporter {
         return updateAll;
     }
     
-    public List<String> getStatusMessages() {
+    public List<StatusMessage> getStatusMessages() {
         return statusMessages;
     }
     
@@ -316,10 +315,8 @@ public class ModelImporter {
     /**
      * Log a status message
      */
-    void logMessage(String msg, EObject...objs) {
-        List<String> objsList = new ArrayList<>();
-        Stream.of(objs).forEach(o -> objsList.add(ArchiLabelProvider.INSTANCE.getLabel(o)));
-        statusMessages.add(NLS.bind(msg, objsList.toArray()));
+    void logMessage(Level level, String message, EObject... objs) {
+        statusMessages.add(new StatusMessage(level, message, objs));
     }
     
     // ====================================================================================================
@@ -448,12 +445,12 @@ public class ModelImporter {
                         }
                     });
                     
-                    logMessage("Connection Source Changed in View: ''{0}''", connection.getDiagramModel());
+                    logMessage(Level.WARNING, "Connection Source Changed in View: ''{0}''", connection.getDiagramModel());
                 }
                 // Not found, so delete the matching connection
                 else {
                     add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
-                    logMessage("Connection Removed from View: ''{0}''", connection.getDiagramModel());
+                    logMessage(Level.WARNING, "Connection Removed from View: ''{0}''", connection.getDiagramModel());
                 }
             }
 
@@ -477,12 +474,12 @@ public class ModelImporter {
                         }
                     });
                     
-                    logMessage("Connection Target Changed in View: ''{0}''", connection.getDiagramModel());
+                    logMessage(Level.WARNING, "Connection Target Changed in View: ''{0}''", connection.getDiagramModel());
                 }
                 // Not found, so delete the matching connection
                 else {
                     add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
-                    logMessage("Connection Removed from View: ''{0}''", connection.getDiagramModel());
+                    logMessage(Level.WARNING, "Connection Removed from View: ''{0}''", connection.getDiagramModel());
                 }
             }
         }

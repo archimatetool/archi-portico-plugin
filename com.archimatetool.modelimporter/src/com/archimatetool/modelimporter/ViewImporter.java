@@ -33,6 +33,7 @@ import com.archimatetool.model.IDiagramModelContainer;
 import com.archimatetool.model.IDiagramModelImageProvider;
 import com.archimatetool.model.IDiagramModelObject;
 import com.archimatetool.model.ISketchModel;
+import com.archimatetool.modelimporter.StatusMessage.Level;
 
 /**
  * View Importer
@@ -59,14 +60,14 @@ class ViewImporter extends AbstractImporter {
             targetView = cloneObject(importedView);
             createChildren();
             addToParentFolder(importedView, targetView);
-            logMessage("View Added: ''{0}''", importedView);
+            logMessage(Level.INFO, "View Added: ''{0}''", importedView);
         }
         // We have it so update it
         else if(shouldUpdate()) {
             updateView();
             createChildren();
             addToParentFolder(importedView, targetView);
-            logMessage("View Updated: ''{0}''", importedView);
+            logMessage(Level.INFO, "View Updated: ''{0}''", importedView);
         }
         
         return targetView;
@@ -276,7 +277,7 @@ class ViewImporter extends AbstractImporter {
             newTarget = relationship.getTarget();
             
             if(oldSource != newSource || oldTarget != newTarget) {
-                logMessage("Relationship Source/Target: ''{0}'' now connects ''{1}'' to ''{2}''", relationship, newSource, newTarget);
+                logMessage(Level.WARNING, "Relationship: ''{0}'' now connects ''{1}'' to ''{2}''", relationship, newSource, newTarget);
             }
         }
         

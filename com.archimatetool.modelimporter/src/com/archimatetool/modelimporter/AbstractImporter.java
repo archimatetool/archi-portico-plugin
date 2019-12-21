@@ -15,6 +15,7 @@ import com.archimatetool.model.IArchimateModelObject;
 import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IFolder;
 import com.archimatetool.model.IIdentifier;
+import com.archimatetool.modelimporter.StatusMessage.Level;
 
 /**
  * Abstract Importer
@@ -61,8 +62,8 @@ abstract class AbstractImporter {
         importer.addCommand(cmd);
     }
     
-    protected void logMessage(String msg, EObject...objs) {
-        importer.logMessage(msg, objs);
+    protected void logMessage(Level level, String message, EObject... objs) {
+        importer.logMessage(level, message, objs);
     }
     
     /**
