@@ -62,7 +62,7 @@ abstract class AbstractImporter {
         importer.addCommand(cmd);
     }
     
-    protected void logMessage(Level level, String message, EObject... objs) {
+    protected void logMessage(Level level, String message, Object... objs) {
         importer.logMessage(level, message, objs);
     }
     

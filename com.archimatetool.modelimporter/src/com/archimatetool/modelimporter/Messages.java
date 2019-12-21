@@ -46,8 +46,6 @@ public class Messages extends NLS {
 
     public static String StatusDialog_4;
 
-    public static String StatusDialog_5;
-
     public static String StatusMessage_0;
 
     public static String StatusMessage_1;

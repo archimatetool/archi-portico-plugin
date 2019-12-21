@@ -315,7 +315,7 @@ public class ModelImporter {
     /**
      * Log a status message
      */
-    void logMessage(Level level, String message, EObject... objs) {
+    void logMessage(Level level, String message, Object... objs) {
         statusMessages.add(new StatusMessage(level, message, objs));
     }
     

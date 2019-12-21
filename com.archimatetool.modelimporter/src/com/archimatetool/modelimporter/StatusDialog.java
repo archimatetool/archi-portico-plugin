@@ -59,7 +59,6 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, HELP_ID);
         
         setTitle(Messages.StatusDialog_1);
-        setMessage(Messages.StatusDialog_2);
         
         Composite composite = (Composite)super.createDialogArea(parent);
         
@@ -73,7 +72,7 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         textControl.setFont(JFaceResources.getTextFont());
         
         btnInfo = new Button(composite, SWT.CHECK);
-        btnInfo.setText(Messages.StatusDialog_4);
+        btnInfo.setText(Messages.StatusDialog_3);
         btnInfo.setSelection(true);
         btnInfo.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -85,7 +84,7 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         });
         
         btnWarning = new Button(composite, SWT.CHECK);
-        btnWarning.setText(Messages.StatusDialog_5);
+        btnWarning.setText(Messages.StatusDialog_4);
         btnWarning.setSelection(true);
         btnWarning.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -107,7 +106,7 @@ class StatusDialog extends ExtendedTitleAreaDialog {
     
     private void showMessages() {
         if(messages.isEmpty()) {
-            textControl.setText(Messages.StatusDialog_3 + "\n"); //$NON-NLS-1$
+            textControl.setText(Messages.StatusDialog_2 + "\n"); //$NON-NLS-1$
             return;
         }
         
@@ -116,15 +115,8 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         boolean showInfo = btnInfo.getSelection();
         boolean showWarn = btnWarning.getSelection();
         
-        for(StatusMessage msg : messages) {
-            if(showInfo && msg.getLevel() == Level.INFO) {
-                sb.append(msg + "\n"); //$NON-NLS-1$
-            }
-            
-            if(showWarn && msg.getLevel() == Level.WARNING) {
-                sb.append(msg + "\n"); //$NON-NLS-1$
-            }
-        }
+        messages.stream().filter(msg -> (showInfo && msg.getLevel() == Level.INFO) || (showWarn && msg.getLevel() == Level.WARNING))
+                         .forEach(msg -> sb.append(msg + "\n")); //$NON-NLS-1$
 
         getShell().getDisplay().asyncExec(() -> {
             if(!textControl.isDisposed()) {

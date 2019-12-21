@@ -5,11 +5,8 @@
  */
 package com.archimatetool.modelimporter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.osgi.util.NLS;
 
 import com.archimatetool.editor.ui.ArchiLabelProvider;
@@ -34,9 +31,9 @@ class StatusMessage {
     
     private Level level;
     private String message;
-    private EObject[] objs;
+    private Object[] objs;
     
-    StatusMessage(Level level, String message, EObject...objs) {
+    StatusMessage(Level level, String message, Object...objs) {
         this.level = level;
         this.message = message;
         this.objs = objs;
@@ -47,9 +44,11 @@ class StatusMessage {
     }
     
     String getMessage() {
-        List<String> objsList = new ArrayList<>();
-        Stream.of(objs).forEach(o -> objsList.add(ArchiLabelProvider.INSTANCE.getLabel(o)));
-        return getLevel().text + " " + NLS.bind(message, objsList.toArray()); //$NON-NLS-1$
+        Object[] objsList = Stream.of(objs)
+                                      .map(obj -> ArchiLabelProvider.INSTANCE.getLabel(obj))
+                                      .toArray();
+        
+        return getLevel().text + " " + NLS.bind(message, objsList); //$NON-NLS-1$
     }
     
     @Override
