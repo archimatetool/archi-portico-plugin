@@ -92,7 +92,7 @@ public class ModelImporter {
         if(updateAll) {
             updateObject(importedModel, targetModel);
             addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, importedModel.getPurpose()));
-            logMessage(Level.INFO, "Model Updated: ''{0}''", importedModel);
+            logMessage(Level.INFO, "Model Updated: ''{0}''", targetModel);
         }
         
         // Iterate through all model contents

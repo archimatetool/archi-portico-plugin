@@ -60,14 +60,14 @@ class ViewImporter extends AbstractImporter {
             targetView = cloneObject(importedView);
             createChildren();
             addToParentFolder(importedView, targetView);
-            logMessage(Level.INFO, "View Added: ''{0}''", importedView);
+            logMessage(Level.INFO, "View Added: ''{0}''", targetView);
         }
         // We have it so update it
         else if(shouldUpdate()) {
             updateView();
             createChildren();
             addToParentFolder(importedView, targetView);
-            logMessage(Level.INFO, "View Updated: ''{0}''", importedView);
+            logMessage(Level.INFO, "View Updated: ''{0}''", targetView);
         }
         
         return targetView;

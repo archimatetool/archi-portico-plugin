@@ -22,6 +22,7 @@ public class ImportModelWizard extends Wizard {
     private File file;
     private boolean update;
     private boolean updateAll;
+    private boolean showStatusDialog;
 
     public ImportModelWizard() {
         setWindowTitle(Messages.ImportModelWizard_0);
@@ -38,6 +39,7 @@ public class ImportModelWizard extends Wizard {
         file = new File(page.getFileName());
         update = page.shouldUpdate();
         updateAll = page.shouldUpdateAll();
+        showStatusDialog = page.shouldShowStatusDialog();
         
         page.storePreferences();
         
@@ -54,5 +56,9 @@ public class ImportModelWizard extends Wizard {
     
     boolean shouldUpdateAll() {
         return updateAll;
+    }
+    
+    boolean shouldShowStatusDialog() {
+        return showStatusDialog;
     }
 }

@@ -22,8 +22,8 @@ import com.archimatetool.editor.ui.ArchiLabelProvider;
 class StatusMessage {
     
     enum Level {
-        INFO("[Info]"),
-        WARNING("[Warn]");
+        INFO(Messages.StatusMessage_0),
+        WARNING(Messages.StatusMessage_1);
         
         private String text;
 
@@ -49,7 +49,7 @@ class StatusMessage {
     String getMessage() {
         List<String> objsList = new ArrayList<>();
         Stream.of(objs).forEach(o -> objsList.add(ArchiLabelProvider.INSTANCE.getLabel(o)));
-        return getLevel().text + " " + NLS.bind(message, objsList.toArray());
+        return getLevel().text + " " + NLS.bind(message, objsList.toArray()); //$NON-NLS-1$
     }
     
     @Override

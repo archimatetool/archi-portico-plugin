@@ -33,11 +33,11 @@ class ConceptImporter extends AbstractImporter {
         if(targetConcept == null) {
             targetConcept = cloneObject(importedConcept);
             createdNewConcept = true;
-            logMessage(Level.INFO, "Concept Added: ''{0}''", importedConcept);
+            logMessage(Level.INFO, "Concept Added: ''{0}''", targetConcept);
         }
         else if(shouldUpdate()) {
             updateObject(importedConcept, targetConcept);
-            logMessage(Level.INFO, "Concept Updated: ''{0}''", importedConcept);
+            logMessage(Level.INFO, "Concept Updated: ''{0}''", targetConcept);
         }
         
         if(shouldUpdate() || createdNewConcept) {

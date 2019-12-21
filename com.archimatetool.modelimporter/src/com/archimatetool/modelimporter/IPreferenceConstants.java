@@ -18,4 +18,5 @@ public interface IPreferenceConstants {
     String IMPORTER_PREFS_LAST_FILE = "ImporterLastFile";
     String IMPORTER_PREFS_UPDATE = "ImporterUpdate";
     String IMPORTER_PREFS_UPDATE_ALL = "ImporterUpdateAll";
+    String IMPORTER_PREFS_SHOW_STATUS_DIALOG = "ImporterShowStatusDialog";
 }

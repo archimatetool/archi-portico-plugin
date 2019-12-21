@@ -25,5 +25,6 @@ implements IPreferenceConstants {
         
         store.setDefault(IMPORTER_PREFS_UPDATE, false);
         store.setDefault(IMPORTER_PREFS_UPDATE_ALL, false);
+        store.setDefault(IMPORTER_PREFS_SHOW_STATUS_DIALOG, true);
     }
 }

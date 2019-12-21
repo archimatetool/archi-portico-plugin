@@ -63,7 +63,9 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         
         Composite composite = (Composite)super.createDialogArea(parent);
         
-        ((GridLayout)composite.getLayout()).marginWidth = 10;
+        GridLayout layout = (GridLayout)composite.getLayout();
+        layout.marginWidth = 10;
+        layout.verticalSpacing = 5;
         
         textControl = new Text(composite, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
         textControl.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -71,7 +73,7 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         textControl.setFont(JFaceResources.getTextFont());
         
         btnInfo = new Button(composite, SWT.CHECK);
-        btnInfo.setText("Information");
+        btnInfo.setText(Messages.StatusDialog_4);
         btnInfo.setSelection(true);
         btnInfo.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -81,7 +83,7 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         });
         
         btnWarning = new Button(composite, SWT.CHECK);
-        btnWarning.setText("Warnings");
+        btnWarning.setText(Messages.StatusDialog_5);
         btnWarning.setSelection(true);
         btnWarning.addSelectionListener(new SelectionAdapter() {
             @Override

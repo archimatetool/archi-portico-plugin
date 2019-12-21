@@ -44,6 +44,7 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
     private Text fFileTextField;
     private Button fUpdateButton;
     private Button fUpdateAllButton;
+    private Button fShowStatusDialog;
     
     public ImportModelPage() {
         super("ImportModelPage"); //$NON-NLS-1$
@@ -123,6 +124,11 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
         fUpdateAllButton.setText(Messages.ImportModelPage_8);
         fUpdateAllButton.setLayoutData(gd);
         
+        fShowStatusDialog = new Button(optionsGroup, SWT.CHECK);
+        fShowStatusDialog.setSelection(ImporterPlugin.INSTANCE.getPreferenceStore().getBoolean(IMPORTER_PREFS_SHOW_STATUS_DIALOG));
+        fShowStatusDialog.setText(Messages.ImportModelPage_9);
+        fShowStatusDialog.setLayoutData(gd);
+        
         setButtonState();
     }
 
@@ -136,6 +142,10 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
     
     boolean shouldUpdateAll() {
         return fUpdateAllButton.getSelection();
+    }
+    
+    boolean shouldShowStatusDialog() {
+        return fShowStatusDialog.getSelection();
     }
     
     private void setButtonState() {
@@ -176,5 +186,6 @@ public class ImportModelPage extends WizardPage implements IPreferenceConstants 
         store.setValue(IMPORTER_PREFS_LAST_FILE, getFileName());
         store.setValue(IMPORTER_PREFS_UPDATE, shouldUpdate());
         store.setValue(IMPORTER_PREFS_UPDATE_ALL, shouldUpdateAll());
+        store.setValue(IMPORTER_PREFS_SHOW_STATUS_DIALOG, shouldShowStatusDialog());
     }
 }

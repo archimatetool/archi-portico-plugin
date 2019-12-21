@@ -24,6 +24,8 @@ public class Messages extends NLS {
 
     public static String ImportModelPage_8;
 
+    public static String ImportModelPage_9;
+
     public static String ImportModelWizard_0;
 
     public static String ImportProvider_0;
@@ -41,6 +43,14 @@ public class Messages extends NLS {
     public static String StatusDialog_2;
 
     public static String StatusDialog_3;
+
+    public static String StatusDialog_4;
+
+    public static String StatusDialog_5;
+
+    public static String StatusMessage_0;
+
+    public static String StatusMessage_1;
 
     static {
         // initialize resource bundle
