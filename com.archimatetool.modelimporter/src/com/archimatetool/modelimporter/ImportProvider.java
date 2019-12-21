@@ -77,8 +77,15 @@ public class ImportProvider implements ISelectedModelImporter {
             
             // Run the Model checker now
             ModelChecker checker = new ModelChecker(targetModel);
+            
             if(!checker.checkAll()) {
                 checker.showErrorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+            }
+            // Show Status Messages
+            else {
+                StatusDialog statusDialog = new StatusDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+                        importer.getStatusMessages());
+                statusDialog.open();
             }
         }
     }

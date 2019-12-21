@@ -39,7 +39,7 @@ import com.archimatetool.editor.utils.StringUtils;
  */
 public class ImportModelPage extends WizardPage implements IPreferenceConstants {
 
-    private static String HELP_ID = "com.archimatetool.help.ImportModelPage"; //$NON-NLS-1$
+    private static String HELP_ID = "com.archimatetool.help.ImportModel"; //$NON-NLS-1$
     
     private Text fFileTextField;
     private Button fUpdateButton;

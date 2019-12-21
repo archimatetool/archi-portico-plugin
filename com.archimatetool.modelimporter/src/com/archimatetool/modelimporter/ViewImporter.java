@@ -59,12 +59,14 @@ class ViewImporter extends AbstractImporter {
             targetView = cloneObject(importedView);
             createChildren();
             addToParentFolder(importedView, targetView);
+            logMessage("View Added: ''{0}''", importedView);
         }
         // We have it so update it
         else if(shouldUpdate()) {
             updateView();
             createChildren();
             addToParentFolder(importedView, targetView);
+            logMessage("View Updated: ''{0}''", importedView);
         }
         
         return targetView;
@@ -249,7 +251,7 @@ class ViewImporter extends AbstractImporter {
      * This will then re-assign the source/target of the connection's relationship if it has changed.
      * So we need to hook into this for an undo/redo action to reset the relationship ends
      */
-    private static class ArchimateConnectionCommand extends Command {
+    private class ArchimateConnectionCommand extends Command {
         private IDiagramModelArchimateConnection connection;
         private IConnectable connectionSource, connectionTarget;
         private IArchimateRelationship relationship;
@@ -272,6 +274,10 @@ class ViewImporter extends AbstractImporter {
             
             newSource = relationship.getSource();
             newTarget = relationship.getTarget();
+            
+            if(oldSource != newSource || oldTarget != newTarget) {
+                logMessage("Relationship Source/Target: ''{0}'' now connects ''{1}'' to ''{2}''", relationship, newSource, newTarget);
+            }
         }
         
         @Override
@@ -292,6 +298,18 @@ class ViewImporter extends AbstractImporter {
             if(oldTarget != newTarget) {
                 relationship.setTarget(newTarget);
             }
+        }
+        
+        @Override
+        public void dispose() {
+            connection = null;
+            connectionSource = null;
+            connectionTarget = null;
+            relationship = null;
+            oldSource = null;
+            oldTarget = null;
+            newSource = null;
+            newTarget = null;
         }
     }
 }

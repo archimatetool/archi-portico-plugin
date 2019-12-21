@@ -37,15 +37,18 @@ class FolderImporter extends AbstractImporter {
             if(targetFolder == null) {
                 targetFolder = cloneObject(importedFolder);
                 createdNewFolder = true;
+                logMessage("Folder Added: ''{0}''", importedFolder);
             }
             // Yes it is a top-level folder so update it if the option is set
             else if(shouldUpdateAll()) {
                 updateObject(importedFolder, targetFolder);
+                logMessage("Folder Updated: ''{0}''", importedFolder);
             }
         }
         // We do have it so update it if the option is set
         else if((isUserFolder(importedFolder) && shouldUpdate()) || (isTopLevelFolder(importedFolder) && shouldUpdateAll())) {
             updateObject(importedFolder, targetFolder);
+            logMessage("Folder Updated: ''{0}''", importedFolder);
         }
 
         // Add to parent folder (if it's a sub-folder)

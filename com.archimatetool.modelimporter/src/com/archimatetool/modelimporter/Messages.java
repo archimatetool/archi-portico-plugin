@@ -34,6 +34,14 @@ public class Messages extends NLS {
 
     public static String ModelImporter_2;
 
+    public static String StatusDialog_0;
+
+    public static String StatusDialog_1;
+
+    public static String StatusDialog_2;
+
+    public static String StatusDialog_3;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

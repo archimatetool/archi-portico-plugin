@@ -61,6 +61,10 @@ abstract class AbstractImporter {
         importer.addCommand(cmd);
     }
     
+    protected void logMessage(String msg, EObject...objs) {
+        importer.logMessage(msg, objs);
+    }
+    
     /**
      * Add target object to parent folder
      * @param importedObject The imported object

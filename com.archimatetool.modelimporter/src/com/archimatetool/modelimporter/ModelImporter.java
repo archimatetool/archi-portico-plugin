@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -30,6 +31,7 @@ import com.archimatetool.editor.model.commands.NonNotifyingCompoundCommand;
 import com.archimatetool.editor.model.compatibility.CompatibilityHandlerException;
 import com.archimatetool.editor.model.compatibility.IncompatibleModelException;
 import com.archimatetool.editor.model.compatibility.ModelCompatibility;
+import com.archimatetool.editor.ui.ArchiLabelProvider;
 import com.archimatetool.model.IArchimateConcept;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateModelObject;
@@ -67,6 +69,9 @@ public class ModelImporter {
     // Keep a cache of objects in the target model for speed
     private Map<String, IIdentifier> objectCache;
     
+    // Status Messages
+    private List<String> statusMessages;
+    
     // Undo/Redo commands
     private NonNotifyingCompoundCommand compoundCommand;
     
@@ -80,12 +85,15 @@ public class ModelImporter {
         
         objectCache = createObjectIDCache();
         
+        statusMessages = new ArrayList<>();
+        
         compoundCommand = new NonNotifyingCompoundCommand(Messages.ModelImporter_1);
         
         // Upate root model object if the option is set
         if(updateAll) {
             updateObject(importedModel, targetModel);
             addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, importedModel.getPurpose()));
+            logMessage("Model Updated: ''{0}''", importedModel);
         }
         
         // Iterate through all model contents
@@ -149,6 +157,10 @@ public class ModelImporter {
     
     public boolean shouldUpdateAll() {
         return updateAll;
+    }
+    
+    public List<String> getStatusMessages() {
+        return statusMessages;
     }
     
     /**
@@ -301,6 +313,15 @@ public class ModelImporter {
         }
     }
     
+    /**
+     * Log a status message
+     */
+    void logMessage(String msg, EObject...objs) {
+        List<String> objsList = new ArrayList<>();
+        Stream.of(objs).forEach(o -> objsList.add(ArchiLabelProvider.INSTANCE.getLabel(o)));
+        statusMessages.add(NLS.bind(msg, objsList.toArray()));
+    }
+    
     // ====================================================================================================
     // Commands
     // ====================================================================================================
@@ -371,7 +392,7 @@ public class ModelImporter {
      * Archimate View Connections might need reconnecting or disconnecting
      * This can only be executed once all previous commands have run so that the target model is in the correct state
      */
-    private static class SetArchimateReconnectionCommand extends CompoundCommand {
+    private class SetArchimateReconnectionCommand extends CompoundCommand {
         private IArchimateModel model;
         
         private SetArchimateReconnectionCommand(IArchimateModel model) {
@@ -414,6 +435,7 @@ public class ModelImporter {
                 if(!list.isEmpty()) {
                     IDiagramModelArchimateComponent matchingComponent = list.get(0);
                     IConnectable oldSource = connection.getSource();
+                    
                     add(new Command() {
                         @Override
                         public void execute() {
@@ -425,10 +447,13 @@ public class ModelImporter {
                             connection.connect(oldSource, connection.getTarget());
                         }
                     });
+                    
+                    logMessage("Connection Source Changed in View: ''{0}''", connection.getDiagramModel());
                 }
                 // Not found, so delete the matching connection
                 else {
                     add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
+                    logMessage("Connection Removed from View: ''{0}''", connection.getDiagramModel());
                 }
             }
 
@@ -439,6 +464,7 @@ public class ModelImporter {
                 if(!list.isEmpty()) {
                     IDiagramModelArchimateComponent matchingComponent = list.get(0);
                     IConnectable oldTarget = connection.getTarget();
+                    
                     add(new Command() {
                         @Override
                         public void execute() {
@@ -450,10 +476,13 @@ public class ModelImporter {
                             connection.connect(connection.getSource(), oldTarget);
                         }
                     });
+                    
+                    logMessage("Connection Target Changed in View: ''{0}''", connection.getDiagramModel());
                 }
                 // Not found, so delete the matching connection
                 else {
                     add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
+                    logMessage("Connection Removed from View: ''{0}''", connection.getDiagramModel());
                 }
             }
         }
