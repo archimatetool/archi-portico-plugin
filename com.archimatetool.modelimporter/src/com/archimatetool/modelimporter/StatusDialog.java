@@ -5,11 +5,14 @@
  */
 package com.archimatetool.modelimporter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
@@ -22,7 +25,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 import com.archimatetool.editor.ui.IArchiImages;
@@ -40,7 +42,7 @@ class StatusDialog extends ExtendedTitleAreaDialog {
     
     private static final int COPY_TO_CLIPBOARD_BUTTON = IDialogConstants.CLIENT_ID + 1;
     
-    private Text textControl;
+    private StyledText textControl;
     
     private List<StatusMessage> messages;
     
@@ -71,7 +73,7 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         layout.marginWidth = 10;
         layout.verticalSpacing = 5;
         
-        textControl = new Text(composite, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
+        textControl = new StyledText(composite, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
         textControl.setLayoutData(new GridData(GridData.FILL_BOTH));
         textControl.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
         textControl.setFont(JFaceResources.getTextFont());
@@ -116,10 +118,17 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         boolean showInfo = btnInfo.getSelection();
         boolean showWarn = btnWarning.getSelection();
         
-        messages.stream().filter(msg -> (showInfo && msg.getLevel() == Level.INFO) || (showWarn && msg.getLevel() == Level.WARNING))
-                         .forEach(msg -> sb.append(msg + "\n")); //$NON-NLS-1$
-
+        List<StyleRange> ranges = new ArrayList<>();
+        
+        messages.stream()
+                .filter(msg -> (showInfo && msg.getLevel() == Level.INFO) || (showWarn && msg.getLevel() == Level.WARNING))
+                .forEach(msg -> {
+                    ranges.add(msg.getStyleRange(sb.length())); // Add color style range first
+                    sb.append(msg + "\n"); //$NON-NLS-1$
+                });
+        
         textControl.setText(sb.toString());
+        textControl.setStyleRanges(ranges.toArray(new StyleRange[ranges.size()]));
     }
     
     @Override
