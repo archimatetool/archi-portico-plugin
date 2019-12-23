@@ -9,7 +9,7 @@ import org.eclipse.gef.commands.Command;
 
 import com.archimatetool.model.FolderType;
 import com.archimatetool.model.IFolder;
-import com.archimatetool.modelimporter.StatusMessage.Level;
+import com.archimatetool.modelimporter.StatusMessage.StatusMessageLevel;
 
 
 /**
@@ -38,18 +38,18 @@ class FolderImporter extends AbstractImporter {
             if(targetFolder == null) {
                 targetFolder = cloneObject(importedFolder);
                 createdNewFolder = true;
-                logMessage(Level.INFO, "Folder Added: ''{0}''", targetFolder);
+                logMessage(StatusMessageLevel.INFO, "Folder added: ''{0}''", targetFolder);
             }
             // Yes it is a top-level folder so update it if the option is set
             else if(shouldUpdateAll()) {
                 updateObject(importedFolder, targetFolder);
-                logMessage(Level.INFO, "Folder Updated: ''{0}''", targetFolder);
+                logMessage(StatusMessageLevel.INFO, "Folder updated: ''{0}''", targetFolder);
             }
         }
         // We do have it so update it if the option is set
         else if((isUserFolder(importedFolder) && shouldUpdate()) || (isTopLevelFolder(importedFolder) && shouldUpdateAll())) {
             updateObject(importedFolder, targetFolder);
-            logMessage(Level.INFO, "Folder Updated: ''{0}''", targetFolder);
+            logMessage(StatusMessageLevel.INFO, "Folder updated: ''{0}''", targetFolder);
         }
 
         // Add to parent folder (if it's a sub-folder)

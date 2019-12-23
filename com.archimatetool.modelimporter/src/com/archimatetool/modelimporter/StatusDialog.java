@@ -29,7 +29,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.archimatetool.editor.ui.IArchiImages;
 import com.archimatetool.editor.ui.components.ExtendedTitleAreaDialog;
-import com.archimatetool.modelimporter.StatusMessage.Level;
+import com.archimatetool.modelimporter.StatusMessage.StatusMessageLevel;
 
 /**
  * Status Dialog
@@ -78,18 +78,19 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         textControl.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
         textControl.setFont(JFaceResources.getTextFont());
         
-        btnInfo = createCheckbox(composite, Messages.StatusDialog_3, Level.INFO);
-        btnWarning = createCheckbox(composite, Messages.StatusDialog_4, Level.WARNING);
+        btnInfo = createCheckbox(composite, Messages.StatusDialog_3, StatusMessageLevel.INFO);
+        btnWarning = createCheckbox(composite, Messages.StatusDialog_4, StatusMessageLevel.WARNING);
         
         showMessages();
         
         return composite;
     }
     
-    private Button createCheckbox(Composite parent, String text, Level level) {
+    private Button createCheckbox(Composite parent, String text, StatusMessageLevel level) {
         Button btn = new Button(parent, SWT.CHECK);
         btn.setText(text);
-        btn.setSelection(true);
+        btn.setSelection(hasMessageType(level));
+        btn.setEnabled(btn.getSelection());
         
         btn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -103,7 +104,7 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         return btn;
     }
     
-    private boolean hasMessageType(Level level) {
+    private boolean hasMessageType(StatusMessageLevel level) {
         return messages.stream().anyMatch(msg -> msg.getLevel() == level);
     }
     
@@ -121,14 +122,22 @@ class StatusDialog extends ExtendedTitleAreaDialog {
         List<StyleRange> ranges = new ArrayList<>();
         
         messages.stream()
-                .filter(msg -> (showInfo && msg.getLevel() == Level.INFO) || (showWarn && msg.getLevel() == Level.WARNING))
+                .filter(msg -> (showInfo && msg.getLevel() == StatusMessageLevel.INFO) || (showWarn && msg.getLevel() == StatusMessageLevel.WARNING))
                 .forEach(msg -> {
-                    ranges.add(msg.getStyleRange(sb.length())); // Add color style range first
+                    ranges.add(createStyleRange(msg, sb.length())); // Add color style range first
                     sb.append(msg + "\n"); //$NON-NLS-1$
                 });
         
         textControl.setText(sb.toString());
         textControl.setStyleRanges(ranges.toArray(new StyleRange[ranges.size()]));
+    }
+    
+    private StyleRange createStyleRange(StatusMessage msg, int start) {
+        StyleRange sr = new StyleRange();
+        sr.foreground = msg.getLevel().getColor();
+        sr.start = start;
+        sr.length = msg.getLevel().getText().length();
+        return sr;
     }
     
     @Override

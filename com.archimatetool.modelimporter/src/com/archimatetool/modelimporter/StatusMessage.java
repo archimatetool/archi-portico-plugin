@@ -8,7 +8,6 @@ package com.archimatetool.modelimporter;
 import java.util.stream.Stream;
 
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
 
 import com.archimatetool.editor.ui.ArchiLabelProvider;
@@ -21,30 +20,39 @@ import com.archimatetool.editor.ui.ColorFactory;
  */
 class StatusMessage {
     
-    enum Level {
+    enum StatusMessageLevel {
+        
         INFO(Messages.StatusMessage_0, ColorFactory.get(0, 0, 255)),
         WARNING(Messages.StatusMessage_1, ColorFactory.get(255, 0, 0));
         
         private String text;
         private Color color;
 
-        Level(String text, Color color) {
+        StatusMessageLevel(String text, Color color) {
             this.text = text;
             this.color = color;
         }
+
+        Color getColor() {
+            return color;
+        }
+
+        String getText() {
+            return text;
+        }
     }
     
-    private Level level;
+    private StatusMessageLevel level;
     private String message;
     private Object[] objs;
     
-    StatusMessage(Level level, String message, Object...objs) {
+    StatusMessage(StatusMessageLevel level, String message, Object...objs) {
         this.level = level;
         this.message = message;
         this.objs = objs;
     }
     
-    Level getLevel() {
+    StatusMessageLevel getLevel() {
         return level;
     }
     
@@ -53,15 +61,7 @@ class StatusMessage {
                                       .map(obj -> ArchiLabelProvider.INSTANCE.getLabel(obj))
                                       .toArray();
         
-        return getLevel().text + " " + NLS.bind(message, objsList); //$NON-NLS-1$
-    }
-    
-    StyleRange getStyleRange(int start) {
-        StyleRange sr = new StyleRange();
-        sr.foreground = getLevel().color;
-        sr.start = start;
-        sr.length = getLevel().text.length();
-        return sr;
+        return getLevel().getText() + " " + NLS.bind(message, objsList); //$NON-NLS-1$
     }
     
     @Override

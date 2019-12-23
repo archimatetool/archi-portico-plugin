@@ -49,7 +49,7 @@ import com.archimatetool.model.INameable;
 import com.archimatetool.model.IProperties;
 import com.archimatetool.model.IProperty;
 import com.archimatetool.model.util.ArchimateResourceFactory;
-import com.archimatetool.modelimporter.StatusMessage.Level;
+import com.archimatetool.modelimporter.StatusMessage.StatusMessageLevel;
 
 
 /**
@@ -92,7 +92,7 @@ public class ModelImporter {
         if(updateAll) {
             updateObject(importedModel, targetModel);
             addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, importedModel.getPurpose()));
-            logMessage(Level.INFO, "Model Updated: ''{0}''", targetModel);
+            logMessage(StatusMessageLevel.INFO, "Model updated: ''{0}''", targetModel);
         }
         
         // Iterate through all model contents
@@ -315,7 +315,7 @@ public class ModelImporter {
     /**
      * Log a status message
      */
-    void logMessage(Level level, String message, Object... objs) {
+    void logMessage(StatusMessageLevel level, String message, Object... objs) {
         statusMessages.add(new StatusMessage(level, message, objs));
     }
     
@@ -445,12 +445,12 @@ public class ModelImporter {
                         }
                     });
                     
-                    logMessage(Level.WARNING, "Connection Source Changed in View: ''{0}''", connection.getDiagramModel());
+                    logMessage(StatusMessageLevel.WARNING, "Connection source of ''{0}'' changed in View ''{1}''", connection, connection.getDiagramModel());
                 }
                 // Not found, so delete the matching connection
                 else {
                     add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
-                    logMessage(Level.WARNING, "Connection Removed from View: ''{0}''", connection.getDiagramModel());
+                    logMessage(StatusMessageLevel.WARNING, "Connection ''{0}'' removed from View ''{1}''", connection, connection.getDiagramModel());
                 }
             }
 
@@ -474,12 +474,12 @@ public class ModelImporter {
                         }
                     });
                     
-                    logMessage(Level.WARNING, "Connection Target Changed in View: ''{0}''", connection.getDiagramModel());
+                    logMessage(StatusMessageLevel.WARNING, "Connection target of ''{0}'' changed in View ''{1}''", connection, connection.getDiagramModel());
                 }
                 // Not found, so delete the matching connection
                 else {
                     add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
-                    logMessage(Level.WARNING, "Connection Removed from View: ''{0}''", connection.getDiagramModel());
+                    logMessage(StatusMessageLevel.WARNING, "Connection ''{0}'' removed from View ''{1}''", connection, connection.getDiagramModel());
                 }
             }
         }
