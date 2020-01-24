@@ -92,7 +92,7 @@ public class ModelImporter {
         if(updateAll) {
             updateObject(importedModel, targetModel);
             addCommand(new EObjectFeatureCommand(null, targetModel, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, importedModel.getPurpose()));
-            logMessage(StatusMessageLevel.INFO, "Model updated: ''{0}''", targetModel);
+            logMessage(StatusMessageLevel.INFO, Messages.ModelImporter_3, targetModel);
         }
         
         // Iterate through all model contents
@@ -445,12 +445,12 @@ public class ModelImporter {
                         }
                     });
                     
-                    logMessage(StatusMessageLevel.WARNING, "Connection source of ''{0}'' changed in View ''{1}''", connection, connection.getDiagramModel());
+                    logMessage(StatusMessageLevel.WARNING, Messages.ModelImporter_4, connection, connection.getDiagramModel());
                 }
                 // Not found, so delete the matching connection
                 else {
                     add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
-                    logMessage(StatusMessageLevel.WARNING, "Connection ''{0}'' removed from View ''{1}''", connection, connection.getDiagramModel());
+                    logMessage(StatusMessageLevel.WARNING, Messages.ModelImporter_5, connection, connection.getDiagramModel());
                 }
             }
 
@@ -474,12 +474,12 @@ public class ModelImporter {
                         }
                     });
                     
-                    logMessage(StatusMessageLevel.WARNING, "Connection target of ''{0}'' changed in View ''{1}''", connection, connection.getDiagramModel());
+                    logMessage(StatusMessageLevel.WARNING, Messages.ModelImporter_6, connection, connection.getDiagramModel());
                 }
                 // Not found, so delete the matching connection
                 else {
                     add(DiagramCommandFactory.createDeleteDiagramConnectionCommand(connection));
-                    logMessage(StatusMessageLevel.WARNING, "Connection ''{0}'' removed from View ''{1}''", connection, connection.getDiagramModel());
+                    logMessage(StatusMessageLevel.WARNING, Messages.ModelImporter_5, connection, connection.getDiagramModel());
                 }
             }
         }

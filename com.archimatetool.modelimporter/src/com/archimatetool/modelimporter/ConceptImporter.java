@@ -35,12 +35,12 @@ class ConceptImporter extends AbstractImporter {
             targetConcept = cloneObject(importedConcept);
             createdNewConcept = true;
             logMessage(StatusMessageLevel.INFO, (targetConcept instanceof IArchimateElement)
-                    ? "Element added: ''{0}''" : "Relationship added: ''{0}''", targetConcept);
+                    ? Messages.ConceptImporter_0 : Messages.ConceptImporter_1, targetConcept);
         }
         else if(shouldUpdate()) {
             updateObject(importedConcept, targetConcept);
             logMessage(StatusMessageLevel.INFO, (targetConcept instanceof IArchimateElement)
-                    ? "Element updated: ''{0}''" : "Relationship updated: ''{0}''", targetConcept);
+                    ? Messages.ConceptImporter_2 : Messages.ConceptImporter_3, targetConcept);
         }
         
         if(shouldUpdate() || createdNewConcept) {

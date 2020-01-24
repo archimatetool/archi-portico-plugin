@@ -60,14 +60,14 @@ class ViewImporter extends AbstractImporter {
             targetView = cloneObject(importedView);
             createChildren();
             addToParentFolder(importedView, targetView);
-            logMessage(StatusMessageLevel.INFO, "View added: ''{0}''", targetView);
+            logMessage(StatusMessageLevel.INFO, Messages.ViewImporter_0, targetView);
         }
         // We have it so update it
         else if(shouldUpdate()) {
             updateView();
             createChildren();
             addToParentFolder(importedView, targetView);
-            logMessage(StatusMessageLevel.INFO, "View updated: ''{0}''", targetView);
+            logMessage(StatusMessageLevel.INFO, Messages.ViewImporter_1, targetView);
         }
         
         return targetView;
@@ -277,7 +277,7 @@ class ViewImporter extends AbstractImporter {
             newTarget = relationship.getTarget();
             
             if(oldSource != newSource || oldTarget != newTarget) {
-                logMessage(StatusMessageLevel.WARNING, "Relationship ''{0}'' now connects ''{1}'' to ''{2}''", relationship, newSource, newTarget);
+                logMessage(StatusMessageLevel.WARNING, Messages.ViewImporter_2, relationship, newSource, newTarget);
             }
         }
         
